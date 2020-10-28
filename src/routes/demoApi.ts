@@ -206,7 +206,6 @@ demoApiRouter.post("/create-account", async (req, res) => {
   try {
     const password = req.body.password;
     if (!password) return res.status(400).end();
-    console.log(req.body);
     const data = req.body.data;
     const id = uuidv4();
     const salt = uuidv4();
@@ -276,7 +275,15 @@ demoApiRouter.post("/connect", async (req, res) => {
 
     const connectionToken = uuidv4();
     await db.query("UPDATE demo_users SET token=$1, token_created_at=$2 WHERE id=$3", [connectionToken, new Date(), id]);
-    const redirectionUri = `${req.protocol}://${req.headers.host}/demo/redirection/`;
+    let redirectionUri;
+    if(env.IS_PRODUCTION) {
+      switch(buttonId) {
+        default:
+          redirectionUri = "https://monptitshop.upsignon.eu/demo/redirection/";
+      }
+    }else {
+      redirectionUri = `${req.protocol}://${req.headers.host}/demo/redirection/`;
+    }
     res.status(200).json({ connectionToken, redirectionUri });
   } catch (e) {
     console.error(e);
@@ -295,7 +302,11 @@ demoApiRouter.get("/redirection/", async (req:any, res:any) => {
     await db.query("UPDATE demo_users SET token=null, token_created_at=null WHERE id=$1", [userId]);
 
     req.session.userId = userId;
-    res.redirect(303, `${req.protocol}://${req.headers.host}/fr/`);
+    if(env.IS_PRODUCTION) {
+      res.redirect(303, "https://monptitshop.upsignon.eu");
+    }else {
+      res.redirect(303, `${req.protocol}://${req.headers.host}`);
+    }
   } catch (e) {
     console.error(e);
     res.status(500).end();
