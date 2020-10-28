@@ -1,0 +1,35 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "license": "",
+  "private": true,
+  "scripts": {
+    "deploy": "./scripts/deploy.sh",
+    "build": "rm -rf dist && tsc -p .",
+    "start-dev-db": "brew services start postgresql && yarn run-migrations",
+    "start-dev-": "pm2 start server && pm2 logs server",
+    "start-dev": "yarn build && yarn stop-dev && yarn start-dev-",
+    "make-migration": "scripts/migrateMake.sh",
+    "run-migrations": "pm2 start migrate",
+    "run-migration-down": "pm2 start migrate-down",
+    "lint": "tslint -p ."
+  },
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "pg": "^8.2.1",
+    "uuid": "^8.1.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "@types/express": "4.17.1",
+    "@types/node": "14.0.13",
+    "@types/pg": "^7.14.3",
+    "@types/uuid": "^8.0.0",
+    "axios": "^0.19.2",
+    "jest": "^26.0.1",
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.5"
+  }
+}

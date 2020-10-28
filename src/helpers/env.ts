@@ -1,0 +1,23 @@
+const {
+  PORT,
+  NODE_ENV,
+  DB_HOST,
+  DB_USER,
+  DB_NAME,
+  DB_PORT,
+  DB_PASS,
+  SESSION_KEY_SECRET,
+  CERTIFICATE_DIR_PATH,
+} = process.env;
+
+export default {
+  PORT,
+  IS_PRODUCTION: NODE_ENV === "production",
+  DB_HOST,
+  DB_PORT,
+  DB_USER,
+  DB_NAME,
+  DB_PASS,
+  SESSION_KEY_SECRET,
+  CERTIFICATE_DIR_PATH,
+};

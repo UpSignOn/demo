@@ -1,0 +1,10 @@
+node_modules
+db-logs
+dist
+public
+logs
+*.key
+*.crt
+*.csr
+*.cer
+ecosystem.*.config.js
