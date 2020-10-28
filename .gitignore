@@ -1,7 +1,6 @@
 node_modules
 db-logs
 dist
-public
 logs
 *.key
 *.crt

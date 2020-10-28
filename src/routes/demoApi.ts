@@ -276,7 +276,7 @@ demoApiRouter.post("/connect", async (req, res) => {
 
     const connectionToken = uuidv4();
     await db.query("UPDATE demo_users SET token=$1, token_created_at=$2 WHERE id=$3", [connectionToken, new Date(), id]);
-    const redirectionUri = `https://monptitshop.upsignon.eu/demo/redirection/`;
+    const redirectionUri = `${req.protocol}://${req.headers.host}/demo/redirection/`;
     res.status(200).json({ connectionToken, redirectionUri });
   } catch (e) {
     console.error(e);
@@ -295,7 +295,7 @@ demoApiRouter.get("/redirection/", async (req:any, res:any) => {
     await db.query("UPDATE demo_users SET token=null, token_created_at=null WHERE id=$1", [userId]);
 
     req.session.userId = userId;
-    res.redirect(303, `https://monptitshop.upsignon.eu/fr/`);
+    res.redirect(303, `${req.protocol}://${req.headers.host}/fr/`);
   } catch (e) {
     console.error(e);
     res.status(500).end();
