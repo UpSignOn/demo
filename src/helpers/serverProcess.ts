@@ -18,7 +18,7 @@ export const startServer = (app: any) => {
   } else {
     const express = require("express");
     app.use("/", express.static("devPublic"));
-    const server = app.listen(8081, () => {
+    const server = app.listen(8888, () => {
       console.log(`Dev server listening`, server.address());
     });
     listenForGracefulShutdown(server);

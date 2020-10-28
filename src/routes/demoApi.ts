@@ -6,7 +6,7 @@ import { passwordHash } from "../helpers/passwordHash";
 import env from "../helpers/env";
 // @ts-ignore
 import session from "express-session";
-const SessionStore = require("../database/sessionStore")(session);
+const SessionStore = require("../helpers/sessionStore")(session);
 
 export const demoApiRouter = express.Router();
 const sessionParams = {
@@ -206,11 +206,12 @@ demoApiRouter.post("/create-account", async (req, res) => {
   try {
     const password = req.body.password;
     if (!password) return res.status(400).end();
+    console.log(req.body);
     const data = req.body.data;
     const id = uuidv4();
     const salt = uuidv4();
     const hash = await passwordHash.hash(password+salt);
-    const email1 = data.filter((d:any)=>d.key === "email1");
+    const email1 = data.find((d:any)=>d.key === "email1");
     const login = email1.value.address;
     await db.query(
       "INSERT INTO demo_users (id, login, password_hash, password_salt, data) VALUES ($1, $2, $3, $4, $5)",
@@ -274,7 +275,7 @@ demoApiRouter.post("/connect", async (req, res) => {
     if(!isOk) return res.status(401).end();
 
     const connectionToken = uuidv4();
-    await db.query("UPDATE demo_users SET token=$1, token_created_at=$2 WHERE id=$3", [connectionToken, Date.now(), id]);
+    await db.query("UPDATE demo_users SET token=$1, token_created_at=$2 WHERE id=$3", [connectionToken, new Date(), id]);
     const redirectionUri = `https://monptitshop.upsignon.eu/demo/redirection/`;
     res.status(200).json({ connectionToken, redirectionUri });
   } catch (e) {

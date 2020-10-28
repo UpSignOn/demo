@@ -6,12 +6,10 @@
   "scripts": {
     "deploy": "./scripts/deploy.sh",
     "build": "rm -rf dist && tsc -p .",
-    "start-dev-db": "brew services start postgresql && yarn run-migrations",
-    "start-dev-": "pm2 start server && pm2 logs server",
+    "start-dev-db": "brew services start postgresql",
+    "start-dev-": "pm2 start ecosystem.demo.config.js --only demo && pm2 logs demo",
     "start-dev": "yarn build && yarn stop-dev && yarn start-dev-",
-    "make-migration": "scripts/migrateMake.sh",
-    "run-migrations": "pm2 start migrate",
-    "run-migration-down": "pm2 start migrate-down",
+    "stop-dev": "pm2 stop demo",
     "lint": "tslint -p ."
   },
   "dependencies": {
