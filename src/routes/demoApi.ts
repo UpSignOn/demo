@@ -215,7 +215,8 @@ demoApiRouter.post("/create-account", async (req, res) => {
     const salt = uuidv4();
     const hash = await passwordHash.hash(password+salt);
     const email1 = data.find((d:any)=>d.key === "email1");
-    const login = email1.value.address;
+    const login = email1?.value?.address;
+    if(!login) return res.status(403).json({message: "email address is empty"});
     await db.query(
       "INSERT INTO demo_users (id, login, password_hash, password_salt, data) VALUES ($1, $2, $3, $4, $5)",
       [id, login, hash, salt, JSON.stringify(data)]);
@@ -343,7 +344,8 @@ demoApiRouter.post("/update-data", async (req, res) => {
     const id = req.body.userId;
     const password = req.body.password;
     const data = req.body.data;
-    if (!id) return res.status(400).end();
+    if (!id||!data) return res.status(400).end();
+    if (!password) return res.status(401).end();
 
     const isOk = await checkPassword(id, password);
     if(!isOk) return res.status(401).end();
