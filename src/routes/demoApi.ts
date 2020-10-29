@@ -84,11 +84,15 @@ const isTokenExpired = (created_at: Date) => {
 };
 
 const checkPassword = async (userId:string, password: string): Promise<boolean>=>{
-  if (!password) return false;
-  const dbRes = await db.query("SELECT password_hash, password_salt FROM demo_users WHERE id=$1", [userId]);
-  if (dbRes.rowCount === 0) return false;
-  const isOk = passwordHash.isOk(password+dbRes.rows[0].password_salt, dbRes.rows[0].password_hash);
-  return isOk;
+  try {
+    if (!password) return false;
+    const dbRes = await db.query("SELECT password_hash, password_salt FROM demo_users WHERE id=$1", [userId]);
+    if (dbRes.rowCount === 0) return false;
+    const isOk = passwordHash.isOk(password+dbRes.rows[0].password_salt, dbRes.rows[0].password_hash);
+    return isOk;
+  }catch {
+    return false;
+  }
 }
 
 
@@ -206,7 +210,7 @@ demoApiRouter.post("/create-account", async (req, res) => {
   try {
     const password = req.body.password;
     if (!password) return res.status(400).end();
-    const data = req.body.data;
+    const data = req.body.data||[];
     const id = uuidv4();
     const salt = uuidv4();
     const hash = await passwordHash.hash(password+salt);
@@ -268,7 +272,8 @@ demoApiRouter.post("/connect", async (req, res) => {
     const password = req.body.password;
     const id = req.body.userId;
     const buttonId = req.body.buttonId;
-    if (!id) return res.status(400).end();
+    if (!id) return res.status(401).end();
+    if (!password) return res.status(401).end();
 
     const isOk = await checkPassword(id, password);
     if(!isOk) return res.status(401).end();
