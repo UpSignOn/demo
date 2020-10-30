@@ -260,7 +260,7 @@ demoApiRouter.post("/convert-account", async (req, res) => {
     await db.query("UPDATE demo_users SET password_hash=$1, password_salt=$2 WHERE id=$3", [hash, newSalt, userId]);
     res.status(200).json({
       userId,
-      userData: JSON.stringify(userData || [])
+      userData: JSON.parse(userData) || []
     });
   } catch (e) {
     console.error(e);
