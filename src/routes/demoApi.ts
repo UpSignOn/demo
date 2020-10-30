@@ -88,7 +88,7 @@ const checkPassword = async (userId:string, password: string): Promise<boolean>=
     if (!password) return false;
     const dbRes = await db.query("SELECT password_hash, password_salt FROM demo_users WHERE id=$1", [userId]);
     if (dbRes.rowCount === 0) return false;
-    const isOk = passwordHash.isOk(password+dbRes.rows[0].password_salt, dbRes.rows[0].password_hash);
+    const isOk: boolean = await passwordHash.isOk(password+dbRes.rows[0].password_salt, dbRes.rows[0].password_hash);
     return isOk;
   }catch {
     return false;
@@ -366,7 +366,7 @@ demoApiRouter.post("/delete-account-and-data", async (req, res) => {
     if (!password) return res.status(401).end();
     const dbRes = await db.query("SELECT password_hash, password_salt FROM demo_users WHERE id=$1", [id]);
     if (dbRes.rowCount === 0) return res.status(200).json({ deletionStatus: "DONE" });
-    const isOk = passwordHash.isOk(password+dbRes.rows[0].password_salt, dbRes.rows[0].password_hash);
+    const isOk:boolean  = await passwordHash.isOk(password+dbRes.rows[0].password_salt, dbRes.rows[0].password_hash);
     if (!isOk) return res.status(401).end();
     await db.query("DELETE FROM demo_users WHERE id=$1", [id]);
     res.status(200).json({ deletionStatus: "DONE" });
