@@ -377,7 +377,20 @@ demoApiRouter.post("/delete-account-and-data", async (req, res) => {
 });
 
 demoApiRouter.post("/get-account-deletion-status", async (req, res) => {
-  res.status(200).json({ deletionStatus: "CANCELED" });
+  try {
+  const password = req.body.password;
+  const id = req.body.userId;
+  if (!id) return res.status(400).end();
+  if (!password) return res.status(401).end();
+  const dbRes = await db.query("SELECT password_hash, password_salt FROM demo_users WHERE id=$1", [id]);
+  if (dbRes.rowCount === 0) return res.status(200).json({ deletionStatus: "DONE" });
+  const isOk:boolean  = await passwordHash.isOk(password+dbRes.rows[0].password_salt, dbRes.rows[0].password_hash);
+  if (!isOk) return res.status(401).end();
+  res.status(200).json({ deletionStatus: "PENDING" });
+  }catch(e) {
+    console.error(e);
+    res.status(500).end();
+  }
 });
 
 demoApiRouter.post("/data", async (req:any, res:any) => {
