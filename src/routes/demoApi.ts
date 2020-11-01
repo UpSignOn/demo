@@ -97,8 +97,20 @@ demoApiRouter.get("/button-config", async (req, res) => {
       }
       case "SHOP2": {
         buttonConfig = {
-          fields: [],
-          forceFormDisplay: false,
+          fields: [
+            { type: "firstname", key: "firstname", mandatory: true },
+            { type: "lastname", key: "lastname", mandatory: true },
+            { type: "title", key: "title", mandatory: false },
+            { type: "dateOfBirth", key: "dateOfBirth", mandatory: false },
+            { type: "email", key: "email1", mandatory: true },
+            { type: "email", key: "email2", mandatory: false },
+            { type: "phoneNumber", key: "phoneNumber", mandatory: true },
+            { type: "postalAddress", key: "deliveryAddress", mandatory: true },
+            { type: "postalAddress", key: "billingAddress", mandatory: false },
+            { type: "iban", key: "iban", mandatory: false },
+            { type: "newsletterConsent", key: "newsletterConsent", mandatory: false }
+          ],
+          forceFormDisplay: true,
           generalConfigVersion: CONFIG_VERSION,
           disableAccountCreation: true,
         };
