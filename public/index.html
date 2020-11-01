@@ -19,6 +19,7 @@
       font-family: sans-serif;
       display: flex;
       flex-direction: column;
+      margin-bottom: 50px;
     }
 
     header {
@@ -51,15 +52,21 @@
       border-radius: 2px;
       padding: 5px;
       cursor: pointer;
+      color: black;
+    }
+
+    #creation #classicForm .input::placeholder {
       color: grey;
     }
 
     #creation #formButtonContainer {
       display: flex;
       justify-content: flex-end;
+      align-items: center;
     }
 
-    #creation #formButton {
+    #creation #connectionButton,
+    #creation #creationButton {
       background: rgb(217, 1, 115);
       opacity: 0.6;
       border-radius: 2px;
@@ -67,6 +74,8 @@
       margin-top: 20px;
       padding: 5px;
       width: auto;
+      margin: 5px;
+      cursor: pointer;
     }
 
     #creation hr {
@@ -168,12 +177,16 @@
       <h3>Veuillez créer un compte ou vous identifier</h3>
       <div id="classicForm">
         <div>Email</div>
-        <div class="input">example@mail.com</div>
+        <input type="email" id="email" class="input" placeholder="example@mail.com" />
         <div>Mot de passe</div>
-        <div class="input">********</div>
+        <input type="password" id="password" class="input" placeholder="********" /">
       </div>
+      <p id="emailEmpty" class="hidden" style="color:red;">Le champ email ne doit pas être vide.</p>
+      <p id="passwordEmpty" class="hidden" style="color:red;">Le champ mot de passe ne doit pas être vide.</p>
+      <p id="passwordMismatch" class="hidden" style="color:red;">Ces identifiants sont erronés.</p>
       <div id="formButtonContainer">
-        <div id="formButton">Connexion</div>
+        <div id="connectionButton">Connexion</div>
+        <div id="creationButton">Créer un compte</div>
       </div>
       <hr />
       <div class="upsignonContainer">
@@ -318,7 +331,7 @@
           resolve(data);
         }
       };
-      xhr.open('POST', "/demo/data");
+      xhr.open('POST', "/classic/data");
       xhr.send();
     });
   }
@@ -381,14 +394,64 @@
   var UpSignOnAutoConvertButton = document.getElementById("UpSignOnAutoConvert");
   var UpSignOnUpdateButton = document.getElementById("UpSignOnUpdate");
 
-  function init() {
-    var inputs = document.getElementsByClassName("input");
-    for (var i = 0; i < inputs.length; i++) {
-      inputs[i].addEventListener("click", function (event) {
-        event.target.innerText = "Utilisez plutôt UpSignOn !";
-        event.target.style.color = 'red';
-      });
+  function checkForData() {
+    getData().then(function (data) {
+      if (!data) {
+        creationPage.classList.remove("hidden");
+        shoppingPage.classList.add("hidden");
+        profilePage.classList.add("hidden");
+      } else {
+        creationPage.classList.add("hidden");
+        shoppingPage.classList.add("hidden");
+        profilePage.classList.remove("hidden");
+        var firstnameField = data.find(d => d.type === "firstname");
+        shoppingPage.querySelector("h2").innerHTML = "Bonjour " + (firstnameField ? firstnameField.value : '');
+        displayInfo(data);
+      }
+    });
+  };
+  function sendForm(route) {
+    var email = document.getElementById("email");
+    var password = document.getElementById("password");
+    var emailEmpty = document.getElementById("emailEmpty");
+    var passwordEmpty = document.getElementById("passwordEmpty");
+    var passwordMismatch = document.getElementById("passwordMismatch");
+
+    emailEmpty.classList.add("hidden");
+    passwordEmpty.classList.add("hidden");
+    passwordMismatch.classList.add("hidden");
+    if (!email.value) {
+      document.getElementById("emailEmpty").classList.remove("hidden");
+      return;
     }
+    if (!password.value) {
+      document.getElementById("passwordEmpty").classList.remove("hidden");
+      return;
+    }
+    new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) return resolve();
+          else return reject();
+        }
+      };
+      xhr.open('POST', route);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.send(JSON.stringify({ email: email.value.toLowerCase(), password: password.value }));
+    }).then(function () {
+      checkForData();
+    }).catch(function (e) {
+      passwordMismatch.classList.remove("hidden");
+    });
+  }
+  function init() {
+    document.getElementById("connectionButton").addEventListener("click", function () {
+      sendForm("/classis/login")
+    });
+    document.getElementById("creationButton").addEventListener("click", function () {
+      sendForm("/classic/create")
+    });
     profileButton.addEventListener("click", function () {
       shoppingPage.classList.add("hidden");
       profilePage.classList.remove("hidden");
@@ -400,7 +463,7 @@
 
     resetButton.addEventListener("click", function () {
       var xhr = new XMLHttpRequest();
-      xhr.open('POST', '/demo/disconnect', false);
+      xhr.open('POST', '/classic/disconnect', false);
       xhr.send();
       init();
     });
@@ -425,22 +488,7 @@
 
     UpSignOn.addButtonContent(UpSignOnUpdateButton, protocolURI, {});
     UpSignOn.changeText(UpSignOnUpdateButton, "Modifier ces informations", true);
-
-
-    getData().then(function (data) {
-      if (!data) {
-        creationPage.classList.remove("hidden");
-        shoppingPage.classList.add("hidden");
-        profilePage.classList.add("hidden");
-      } else {
-        creationPage.classList.add("hidden");
-        shoppingPage.classList.add("hidden");
-        profilePage.classList.remove("hidden");
-        var firstnameField = data.find(d => d.type === "firstname");
-        shoppingPage.querySelector("h2").innerHTML = "Bonjour " + (firstnameField ? firstnameField.value : '');
-        displayInfo(data);
-      }
-    });
+    checkForData();
   }
   init();
 </script>

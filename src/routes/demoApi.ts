@@ -1,82 +1,12 @@
 import express from "express";
 import { db } from "../helpers/db-connection";
 import { v4 as uuidv4 } from "uuid";
-
 import { passwordHash } from "../helpers/passwordHash";
 import env from "../helpers/env";
-// @ts-ignore
-import session from "express-session";
-const SessionStore = require("../helpers/sessionStore")(session);
 
 export const demoApiRouter = express.Router();
-const sessionParams = {
-  cookie: {
-    path: "/",
-    httpOnly: true,
-    maxAge: 86400000, // one day
-    sameSite: true,
-    secure: env.IS_PRODUCTION
-  },
-  name: "demo.upsignon.session",
-  secret: env.SESSION_KEY_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  unset: "destroy",
-  store: new SessionStore()
-};
-
-demoApiRouter.use(session(sessionParams));
-
 
 const CONFIG_VERSION = "1";
-
-// [
-//   { type: "firstname", key: "firstname", value: "FakeFirstname" },
-//   { type: "lastname", key: "lastname", value: "FakeLastname" },
-//   { type: "title", key: "title", value: "M" },
-//   { type: "dateOfBirth", key: "dateOfBirth", value: "2000-07-14" },
-//   { type: "email", key: "email1", value: "fake-perso@email.fr" },
-//   { type: "email", key: "email2", value: "fake-pro@email.fr" },
-//   { type: "phoneNumber", key: "phoneNumber", value: "+33911911911" },
-//   {
-//     type: "postalAddress",
-//     key: "deliveryAddress",
-//     value: [
-//       {
-//         streetAddress: "42, rue UpSignOn Démo\nTest",
-//         postalCode: "4242",
-//         city: "UpSignOn City",
-//         country: "dataSmine",
-//         otherInfo: "code 1984",
-//       },
-//       {
-//         streetAddress: "24, avenue dataSmine",
-//         postalCode: "2424",
-//         city: "Tatooine",
-//         country: "Web",
-//         otherInfo: "two suns",
-//       },
-//     ],
-//   },
-//   {
-//     type: "postalAddress",
-//     key: "billingAddress",
-//     value: [
-//       {
-//         streetAddress: "Billing Address",
-//         postalCode: "4242",
-//         city: "Comptable City",
-//         country: "Pognon",
-//       },
-//     ],
-//   },
-//   { type: "iban", key: "iban", value: { IBAN: "GB82WEST12345698765432", BIC: null } },
-//   {
-//     type: "newsletterConsent",
-//     key: "newsletterConsent",
-//     value: { email: true, postal_mail: false, phone: false, sms: true },
-//   },
-// ],
 
 const isTokenExpired = (created_at: Date) => {
   const expirationTime = 60 * 1000; // 1 minute
@@ -94,7 +24,6 @@ const checkPassword = async (userId:string, password: string): Promise<boolean>=
     return false;
   }
 }
-
 
 demoApiRouter.get("/config", async (req, res) => {
   try {
@@ -394,21 +323,3 @@ demoApiRouter.post("/get-account-deletion-status", async (req, res) => {
   }
 });
 
-demoApiRouter.post("/data", async (req:any, res:any) => {
-  try {
-    if (!req.session || !req.session.userId) return res.status(401).end();
-    const dbRes = await db.query("SELECT data FROM demo_users WHERE id=$1",[req.session.userId]);
-    if(dbRes.rowCount !== 1) return res.status(401).end();
-    res
-      .status(200)
-      .json(JSON.parse(dbRes.rows[0].data))
-      .end();
-  } catch (e) {
-    console.error(e);
-    res.status(500).end();
-  }
-});
-demoApiRouter.post("/disconnect", async (req:any, res:any) => {
-  req.session.destroy();
-  res.status(200).end();
-});
