@@ -10,9 +10,8 @@ classicFlowRouter.post("/login", async(req, res)=>{
   try {
     const email = req.body.email;
     const password = req.body.password;
-    console.log(email, password);
     if(!email || !password) return res.status(401).end();
-    const dbRes = await db.query("SELECT id, password_hash FROM demo_users WHERE login=$1", [email]);
+    const dbRes = await db.query("SELECT id, password_hash FROM demo_users WHERE login=$1 OR id=$1", [email]);
     if(dbRes.rowCount === 0) return res.status(401).end();
     const isOK:boolean = await passwordHash.isOk(password, dbRes.rows[0].password_hash);
     if (!isOK) return res.status(401).end();
@@ -31,6 +30,8 @@ classicFlowRouter.post("/create", async(req, res)=>{
     const password = req.body.password;
     if(!email || !password) return res.status(401).end();
 
+    var dbGet = await db.query("SELECT id FROM demo_users WHERE login=$1 OR id=$1", [email]);
+    if(dbGet.rowCount!== 0) return res.status(409).end();
     var fakeData = [
       { type: "firstname", key: "firstname", value: "FakeFirstname" },
       { type: "lastname", key: "lastname", value: "FakeLastname" },

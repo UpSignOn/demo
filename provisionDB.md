@@ -1,7 +1,7 @@
 psql upsignon
 
 CREATE TABLE IF NOT EXISTS demo_users (
-id uuid,
+id varchar(36),
 login varchar(60),
 password_hash char(60),
 token uuid,

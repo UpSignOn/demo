@@ -184,6 +184,7 @@
       <p id="emailEmpty" class="hidden" style="color:red;">Le champ email ne doit pas être vide.</p>
       <p id="passwordEmpty" class="hidden" style="color:red;">Le champ mot de passe ne doit pas être vide.</p>
       <p id="passwordMismatch" class="hidden" style="color:red;">Ces identifiants sont erronés.</p>
+      <p id="loginAlreadyUsed" class="hidden" style="color:red;">Ce login est déjà utilisé.</p>
       <div id="formButtonContainer">
         <div id="connectionButton">Connexion</div>
         <div id="creationButton">Créer un compte</div>
@@ -415,10 +416,12 @@
     var password = document.getElementById("password");
     var emailEmpty = document.getElementById("emailEmpty");
     var passwordEmpty = document.getElementById("passwordEmpty");
+    var loginAlreadyUsed = document.getElementById("loginAlreadyUsed");
     var passwordMismatch = document.getElementById("passwordMismatch");
 
     emailEmpty.classList.add("hidden");
     passwordEmpty.classList.add("hidden");
+    loginAlreadyUsed.classList.add("hidden");
     passwordMismatch.classList.add("hidden");
     if (!email.value) {
       document.getElementById("emailEmpty").classList.remove("hidden");
@@ -433,6 +436,7 @@
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
           if (xhr.status === 200) return resolve();
+          else if (xhr.status === 409) return reject(new Error("conflict"));
           else return reject();
         }
       };
@@ -442,7 +446,11 @@
     }).then(function () {
       checkForData();
     }).catch(function (e) {
-      passwordMismatch.classList.remove("hidden");
+      if (!!e && e.message === "conflict") {
+        loginAlreadyUsed.classList.remove("hidden");
+      } else {
+        passwordMismatch.classList.remove("hidden");
+      }
     });
   }
   function init() {
