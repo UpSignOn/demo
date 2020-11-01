@@ -10,14 +10,15 @@ classicFlowRouter.post("/login", async(req, res)=>{
   try {
     const email = req.body.email;
     const password = req.body.password;
+    console.log(email, password);
     if(!email || !password) return res.status(401).end();
-    const dbRes = await db.query("SELECT id, password_hash, password_salt FROM demo_users WHERE login=$1", [email]);
+    const dbRes = await db.query("SELECT id, password_hash FROM demo_users WHERE login=$1", [email]);
     if(dbRes.rowCount === 0) return res.status(401).end();
-    const isOK:boolean = await passwordHash.isOk(password+dbRes.rows[0].password_salt, dbRes.rows[0].password_hash);
+    const isOK:boolean = await passwordHash.isOk(password, dbRes.rows[0].password_hash);
     if (!isOK) return res.status(401).end();
     // @ts-ignore
     req.session.userId = dbRes.rows[0].id;
-    return res.status(200);
+    return res.status(200).end();
   }catch(e){
     console.error(e);
     return res.status(500).end();
@@ -66,7 +67,7 @@ classicFlowRouter.post("/create", async(req, res)=>{
             streetAddress: "Billing Address",
             postalCode: "4242",
             city: "Comptable City",
-            country: "Pognon",
+            country: "BillingCity",
           },
         ],
       },
@@ -78,9 +79,8 @@ classicFlowRouter.post("/create", async(req, res)=>{
       },
     ];
     var newId = uuidv4();
-    var salt = uuidv4();
-    var hash = passwordHash.hash(password+salt);
-    await db.query("INSERT INTO demo_users (id, login, password_hash, password_salt, data) VALUES ($1, $2, $3, $4, $5)", [newId, email, hash,salt, JSON.stringify(fakeData)]);
+    var hash = await passwordHash.hash(password);
+    await db.query("INSERT INTO demo_users (id, login, password_hash, data) VALUES ($1, $2, $3, $4)", [newId, email, hash, JSON.stringify(fakeData)]);
     // @ts-ignore
     req.session.userId = newId;
     return res.status(200).end();

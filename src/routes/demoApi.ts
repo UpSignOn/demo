@@ -16,9 +16,9 @@ const isTokenExpired = (created_at: Date) => {
 const checkPassword = async (userId:string, password: string): Promise<boolean>=>{
   try {
     if (!password) return false;
-    const dbRes = await db.query("SELECT password_hash, password_salt FROM demo_users WHERE id=$1", [userId]);
+    const dbRes = await db.query("SELECT password_hash FROM demo_users WHERE id=$1", [userId]);
     if (dbRes.rowCount === 0) return false;
-    const isOk: boolean = await passwordHash.isOk(password+dbRes.rows[0].password_salt, dbRes.rows[0].password_hash);
+    const isOk: boolean = await passwordHash.isOk(password, dbRes.rows[0].password_hash);
     return isOk;
   }catch {
     return false;
@@ -141,14 +141,13 @@ demoApiRouter.post("/create-account", async (req, res) => {
     if (!password) return res.status(400).end();
     const data = req.body.data||[];
     const id = uuidv4();
-    const salt = uuidv4();
-    const hash = await passwordHash.hash(password+salt);
+    const hash = await passwordHash.hash(password);
     const email1 = data.find((d:any)=>d.key === "email1");
     const login = email1?.value?.address;
     if(!login) return res.status(403).json({message: "email address is empty"});
     await db.query(
-      "INSERT INTO demo_users (id, login, password_hash, password_salt, data) VALUES ($1, $2, $3, $4, $5)",
-      [id, login, hash, salt, JSON.stringify(data)]);
+      "INSERT INTO demo_users (id, login, password_hash, data) VALUES ($1, $2, $3, $4)",
+      [id, login, hash, JSON.stringify(data)]);
     res.status(200).json({ userId: id });
   } catch (e) {
     console.error(e);
@@ -169,9 +168,9 @@ demoApiRouter.post("/convert-account", async (req, res) => {
     let userId;
     let userData;
     if(!!login && !!password) {
-      const dbRes = await db.query("SELECT id, data, password_hash, password_salt FROM demo_users WHERE login=$1", [login]);
+      const dbRes = await db.query("SELECT id, data, password_hash FROM demo_users WHERE login=$1", [login]);
       if(dbRes.rowCount === 0) return res.status(401).end();
-      const isPasswordOK = await passwordHash.isOk(password+dbRes.rows[0].password_salt, dbRes.rows[0].password_hash);
+      const isPasswordOK = await passwordHash.isOk(password, dbRes.rows[0].password_hash);
       if(!isPasswordOK) return res.status(401).end();
       userId=dbRes.rows[0].id;
       userData=dbRes.rows[0].data;
@@ -185,9 +184,8 @@ demoApiRouter.post("/convert-account", async (req, res) => {
       userId = id;
       userData = currentRes.rows[0].data;
     }
-    const newSalt = uuidv4();
-    const hash = await passwordHash.hash(newPassword+newSalt);
-    await db.query("UPDATE demo_users SET password_hash=$1, password_salt=$2 WHERE id=$3", [hash, newSalt, userId]);
+    const hash = await passwordHash.hash(newPassword);
+    await db.query("UPDATE demo_users SET password_hash=$1 WHERE id=$3", [hash, userId]);
     res.status(200).json({
       userId,
       userData: JSON.parse(userData) || []
@@ -259,9 +257,8 @@ demoApiRouter.post("/update-password", async (req, res) => {
     const isOk = await checkPassword(id, password);
     if(!isOk) return res.status(401).end();
 
-    const newSalt = uuidv4();
-    const newPasswordHash = await passwordHash.hash(newPassword+newSalt);
-    await db.query("UPDATE demo_users SET password_hash=$1, password_salt=$2 WHERE id=$3", [newPasswordHash, newSalt, id]);
+    const newPasswordHash = await passwordHash.hash(newPassword);
+    await db.query("UPDATE demo_users SET password_hash=$1 WHERE id=$2", [newPasswordHash, id]);
     res.status(200).end();
   } catch (e) {
     console.error(e);
@@ -294,9 +291,9 @@ demoApiRouter.post("/delete-account-and-data", async (req, res) => {
     const id = req.body.userId;
     if (!id) return res.status(400).end();
     if (!password) return res.status(401).end();
-    const dbRes = await db.query("SELECT password_hash, password_salt FROM demo_users WHERE id=$1", [id]);
+    const dbRes = await db.query("SELECT password_hash FROM demo_users WHERE id=$1", [id]);
     if (dbRes.rowCount === 0) return res.status(200).json({ deletionStatus: "DONE" });
-    const isOk:boolean  = await passwordHash.isOk(password+dbRes.rows[0].password_salt, dbRes.rows[0].password_hash);
+    const isOk:boolean  = await passwordHash.isOk(password, dbRes.rows[0].password_hash);
     if (!isOk) return res.status(401).end();
     await db.query("DELETE FROM demo_users WHERE id=$1", [id]);
     res.status(200).json({ deletionStatus: "DONE" });
@@ -312,9 +309,9 @@ demoApiRouter.post("/get-account-deletion-status", async (req, res) => {
   const id = req.body.userId;
   if (!id) return res.status(400).end();
   if (!password) return res.status(401).end();
-  const dbRes = await db.query("SELECT password_hash, password_salt FROM demo_users WHERE id=$1", [id]);
+  const dbRes = await db.query("SELECT password_hash FROM demo_users WHERE id=$1", [id]);
   if (dbRes.rowCount === 0) return res.status(200).json({ deletionStatus: "DONE" });
-  const isOk:boolean  = await passwordHash.isOk(password+dbRes.rows[0].password_salt, dbRes.rows[0].password_hash);
+  const isOk:boolean  = await passwordHash.isOk(password, dbRes.rows[0].password_hash);
   if (!isOk) return res.status(401).end();
   res.status(200).json({ deletionStatus: "PENDING" });
   }catch(e) {

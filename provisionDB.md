@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS demo_users (
 id uuid,
 login varchar(60),
 password_hash char(60),
-password_salt uuid,
 token uuid,
 token_created_at timestamp(0) without time zone,
 data text,
