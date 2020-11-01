@@ -95,11 +95,13 @@ classicFlowRouter.post("/create", async(req, res)=>{
 classicFlowRouter.post("/data", async (req:any, res:any) => {
   try {
     if (!req.session || !req.session.userId) return res.status(401).end();
-    const dbRes = await db.query("SELECT data FROM demo_users WHERE id=$1",[req.session.userId]);
+    const token=uuidv4();
+    const createdAt = new Date();
+    const dbRes = await db.query("UPDATE demo_users SET token=$1, token_created_at=$2 WHERE id=$3 RETURNING data",[token, createdAt, req.session.userId]);
     if(dbRes.rowCount !== 1) return res.status(401).end();
     res
       .status(200)
-      .json(JSON.parse(dbRes.rows[0].data))
+      .json({data: JSON.parse(dbRes.rows[0].data), connectionToken: `${req.session.userId}:${token}`})
       .end();
   } catch (e) {
     console.error(e);

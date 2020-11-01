@@ -88,7 +88,6 @@
     }
 
     #UpSignOn,
-    #UpSignOnAutoConvert,
     #UpSignOnUpdate {
       display: inline-block;
       text-align: right;
@@ -193,9 +192,6 @@
       <div class="upsignonContainer">
         <div id="UpSignOn"></div>
       </div>
-      <div class="upsignonContainer">
-        <div id="UpSignOnAutoConvert"></div>
-      </div>
     </div>
 
     <div id="profile">
@@ -205,7 +201,9 @@
         <table>
           <tbody id="info"></tbody>
         </table>
-        <div id="UpSignOnUpdate"></div>
+        <div class="upsignonContainer">
+          <div id="UpSignOnUpdate"></div>
+        </div>
         <div id="resetButton">Déconnexion</div>
       </div>
     </div>
@@ -328,8 +326,8 @@
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
           if (!xhr.responseText) return resolve(null);
-          var data = JSON.parse(xhr.responseText);
-          resolve(data);
+          var body = JSON.parse(xhr.responseText);
+          resolve(body);
         }
       };
       xhr.open('POST', "/classic/data");
@@ -392,12 +390,10 @@
   var profilePage = document.getElementById("profile");
 
   var UpSignOnButton = document.getElementById("UpSignOn");
-  var UpSignOnAutoConvertButton = document.getElementById("UpSignOnAutoConvert");
-  var UpSignOnUpdateButton = document.getElementById("UpSignOnUpdate");
 
   function checkForData() {
-    getData().then(function (data) {
-      if (!data) {
+    getData().then(function (body) {
+      if (!body || !body.data) {
         creationPage.classList.remove("hidden");
         shoppingPage.classList.add("hidden");
         profilePage.classList.add("hidden");
@@ -405,9 +401,19 @@
         creationPage.classList.add("hidden");
         shoppingPage.classList.add("hidden");
         profilePage.classList.remove("hidden");
-        var firstnameField = data.find(d => d.type === "firstname");
+        var firstnameField = body.data.find(d => d.type === "firstname");
         shoppingPage.querySelector("h2").innerHTML = "Bonjour " + (firstnameField ? firstnameField.value : '');
-        displayInfo(data);
+        displayInfo(body.data);
+
+        var conversionRequest = {
+          url: window.location.origin + "/demo",
+          buttonId: "SHOP2",
+          connectionToken: body.connectionToken,
+        };
+        var conversionProtocolURI = UpSignOn.getProtocolURI(conversionRequest);
+        var UpSignOnUpdateButton = document.getElementById("UpSignOnUpdate");
+        UpSignOn.addButtonContent(UpSignOnUpdateButton, conversionProtocolURI, {});
+        UpSignOn.changeText(UpSignOnUpdateButton, "Modifier ces informations avec UpSignOn", true);
       }
     });
   };
@@ -476,26 +482,12 @@
       init();
     });
 
-    var host = window.location.origin;
     var request = {
-      url: host + "/demo",
+      url: window.location.origin + "/demo",
       buttonId: "SHOP",
     };
-
-    var autoConnectRequest = {
-      url: host + "/demo",
-      buttonId: "SHOP2",
-      connectionToken: "user.uuid",
-    };
     var protocolURI = UpSignOn.getProtocolURI(request);
-    var autoConnectProtocolURI = UpSignOn.getProtocolURI(autoConnectRequest);
     UpSignOn.addButtonContent(UpSignOnButton, protocolURI, {});
-
-    UpSignOn.addButtonContent(UpSignOnAutoConvertButton, autoConnectProtocolURI, {});
-    UpSignOn.changeText(UpSignOnAutoConvertButton, "Simuler une conversion de compte", true);
-
-    UpSignOn.addButtonContent(UpSignOnUpdateButton, protocolURI, {});
-    UpSignOn.changeText(UpSignOnUpdateButton, "Modifier ces informations", true);
     checkForData();
   }
   init();

@@ -90,7 +90,7 @@ demoApiRouter.get("/button-config", async (req, res) => {
             { type: "iban", key: "iban", mandatory: false },
             { type: "newsletterConsent", key: "newsletterConsent", mandatory: false },
           ],
-          forceFormDisplay: true,
+          forceFormDisplay: false,
           generalConfigVersion: CONFIG_VERSION,
         };
         break;
@@ -100,28 +100,7 @@ demoApiRouter.get("/button-config", async (req, res) => {
           fields: [],
           forceFormDisplay: false,
           generalConfigVersion: CONFIG_VERSION,
-        };
-        break;
-      }
-      case "RAOUL": {
-        buttonConfig = {
-          fields: [
-            { type: "firstname", key: "firstname", mandatory: true },
-            { type: "lastname", key: "lastname", mandatory: true },
-            { type: "email", key: "email1", mandatory: true },
-            { type: "phoneNumber", key: "phoneNumber", mandatory: true },
-            { type: "dateOfBirth", key: "dateOfBirth", mandatory: false },
-          ],
-          forceFormDisplay: true,
-          generalConfigVersion: CONFIG_VERSION,
-        };
-        break;
-      }
-      case "RAOUL2": {
-        buttonConfig = {
-          fields: [],
-          forceFormDisplay: false,
-          generalConfigVersion: CONFIG_VERSION,
+          disableAccountCreation: true,
         };
         break;
       }
@@ -177,18 +156,20 @@ demoApiRouter.post("/convert-account", async (req, res) => {
     } else {
       const [id, token] = connectionToken.split(':');
       if(!id || !token) return res.status(401).end();
-      const currentRes = await db.query("SELECT data, token_created_at FROM demo_users WHERE id=$1 AND token=$2", [id,token]);
+      const currentRes = await db.query("SELECT data, token_created_at FROM demo_users WHERE id=$1 AND token=$2", [id, token]);
       if(currentRes.rowCount === 0) return res.status(401).end();
-      if(isTokenExpired(currentRes.rows[0].token_created_at)) return res.status(401).end();
+      // TODO token has expired
+      // do not check for token expired during the conversion step.
+      // if(isTokenExpired(currentRes.rows[0].token_created_at)) return res.status(401).end();
       await db.query("UPDATE demo_users SET token=null, token_created_at=null WHERE id=$1", [id]);
       userId = id;
       userData = currentRes.rows[0].data;
     }
     const hash = await passwordHash.hash(newPassword);
-    await db.query("UPDATE demo_users SET password_hash=$1 WHERE id=$3", [hash, userId]);
+    await db.query("UPDATE demo_users SET password_hash=$1 WHERE id=$2", [hash, userId]);
     res.status(200).json({
       userId,
-      userData: JSON.parse(userData) || []
+      userData: userData ? JSON.parse(userData) : []
     });
   } catch (e) {
     console.error(e);
