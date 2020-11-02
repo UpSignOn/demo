@@ -333,20 +333,6 @@
       xhr.send();
     });
   }
-  function getConversionToken() {
-    return new Promise(function (resolve, reject) {
-      var xhr = new XMLHttpRequest();
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-          if (!xhr.responseText) return resolve(null);
-          var body = JSON.parse(xhr.responseText);
-          resolve(body.connectionToken);
-        }
-      };
-      xhr.open('POST', "/classic/conversionToken");
-      xhr.send();
-    });
-  }
 </script>
 
 <script type="text/javascript">
