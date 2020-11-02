@@ -402,8 +402,8 @@
         profilePage.classList.add("hidden");
       } else {
         creationPage.classList.add("hidden");
-        shoppingPage.classList.add("hidden");
-        profilePage.classList.remove("hidden");
+        shoppingPage.classList.remove("hidden");
+        profilePage.classList.add("hidden");
         var firstnameField = data.find(d => d.type === "firstname");
         shoppingPage.querySelector("h2").innerHTML = "Bonjour " + (firstnameField ? firstnameField.value : '');
         displayInfo(data);
