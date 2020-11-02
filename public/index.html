@@ -350,34 +350,36 @@
     data.forEach(function (valueField) {
       var infoNode = document.createElement('tr');
       var infoValue = valueField.value;
-      var displayedValue = infoValue;
-      if (valueField.type === 'email') {
-        displayedValue = infoValue.address;
-      }
-      if (valueField.type === 'phoneNumber') {
-        displayedValue = infoValue.number;
-      }
-      if (valueField.type === 'postalAddress') {
-        displayedValue = '';
-        infoValue.forEach(function (a, i) {
-          if (i > 0) {
-            displayedValue += '<hr/>';
+      var displayedValue = infoValue || '';
+      if (infoValue) {
+        if (valueField.type === 'email') {
+          displayedValue = infoValue.address;
+        }
+        if (valueField.type === 'phoneNumber') {
+          displayedValue = infoValue.number;
+        }
+        if (valueField.type === 'postalAddress') {
+          displayedValue = '';
+          infoValue.forEach(function (a, i) {
+            if (i > 0) {
+              displayedValue += '<hr/>';
+            }
+            displayedValue += a.streetAddress + ', ' + a.postalCode + ' ' + a.city + ', ' + a.country;
+          })
+        }
+        if (valueField.type === 'iban') {
+          displayedValue = infoValue.IBAN + '\n' + (infoValue.BIC || '-');
+        }
+        if (valueField.type === 'newsletterConsent') {
+          displayedValue = "";
+          Object.keys(infoValue).forEach(function (mean) {
+            if (infoValue[mean]) {
+              displayedValue += displayedValue.length === 0 ? mean : " - " + mean;
+            }
+          });
+          if (displayedValue === "") {
+            displayedValue = "NO";
           }
-          displayedValue += a.streetAddress + ', ' + a.postalCode + ' ' + a.city + ', ' + a.country;
-        })
-      }
-      if (valueField.type === 'iban') {
-        displayedValue = infoValue.IBAN + '\n' + (infoValue.BIC || '-');
-      }
-      if (valueField.type === 'newsletterConsent') {
-        displayedValue = "";
-        Object.keys(infoValue).forEach(function (mean) {
-          if (infoValue[mean]) {
-            displayedValue += displayedValue.length === 0 ? mean : " - " + mean;
-          }
-        });
-        if (displayedValue === "") {
-          displayedValue = "NO";
         }
       }
       infoNode.innerHTML = '<td>' + toUpperFirst(valueField.key) + '</td><td>' + displayedValue + '</td>';
