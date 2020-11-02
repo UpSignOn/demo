@@ -3,6 +3,7 @@ import { db } from "../helpers/db-connection";
 import { v4 as uuidv4 } from "uuid";
 
 import { passwordHash } from "../helpers/passwordHash";
+import env from "../helpers/env";
 
 export const classicFlowRouter = express.Router();
 
@@ -119,7 +120,11 @@ classicFlowRouter.get("/conversion", async (req:any, res:any) => {
     const token=uuidv4();
     const createdAt = new Date();
     await db.query("UPDATE demo_users SET token=$1, token_created_at=$2 WHERE id=$3",[token, createdAt, req.session.userId]);
-    res.redirect(303, `upsignon://protocol/?url=${encodeURIComponent(req.protocol+"://"+req.headers.host)+"/demo"}&buttonId=SHOP2&connectionToken=${req.session.userId}:${token}`);
+    if(env.IS_PRODUCTION) {
+      res.redirect(303, `upsignon://protocol/?url=${encodeURIComponent("https://monptitshop.upsignon.eu/demo")}&buttonId=SHOP2&connectionToken=${req.session.userId}:${token}`);
+    } else {
+      res.redirect(303, `upsignon://protocol/?url=${encodeURIComponent(req.protocol+"://"+req.headers.host)+"/demo"}&buttonId=SHOP2&connectionToken=${req.session.userId}:${token}`);
+    }
   } catch (e) {
     console.error(e);
     req.session.destroy();
