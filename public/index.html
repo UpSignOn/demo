@@ -325,8 +325,12 @@
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
           if (!xhr.responseText) return resolve(null);
-          var body = JSON.parse(xhr.responseText);
-          resolve(body.data);
+          try {
+            var body = JSON.parse(xhr.responseText);
+            resolve(body.data);
+          } catch {
+            resolve(null);
+          }
         }
       };
       xhr.open('POST', "/classic/data");
