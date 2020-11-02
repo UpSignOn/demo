@@ -75,7 +75,7 @@ demoApiRouter.get("/button-config", async (req, res) => {
     const buttonId = req.query.buttonId;
     let buttonConfig;
     switch (buttonId) {
-      case "SHOP": {
+      case "SHOP1": {
         buttonConfig = {
           fields: [
             { type: "firstname", key: "firstname", mandatory: true },
