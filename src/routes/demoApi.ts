@@ -247,11 +247,16 @@ demoApiRouter.post("/update-password", async (req, res) => {
     if (!id || !newPassword) return res.status(400).end();
 
     const isOk = await checkPassword(id, password);
-    if(!isOk) return res.status(401).end();
+    if(isOk) {
+      const newPasswordHash = await passwordHash.hash(newPassword);
+      await db.query("UPDATE demo_users SET password_hash=$1 WHERE id=$2", [newPasswordHash, id]);
+      res.status(200).end();
+    }else {
+      const isNewPasswordOK = await checkPassword(id, newPassword);
+      if(isNewPasswordOK) return res.status(200).end();
+      return res.status(401).end();
 
-    const newPasswordHash = await passwordHash.hash(newPassword);
-    await db.query("UPDATE demo_users SET password_hash=$1 WHERE id=$2", [newPasswordHash, id]);
-    res.status(200).end();
+    }
   } catch (e) {
     console.error(e);
     res.status(500).end();
