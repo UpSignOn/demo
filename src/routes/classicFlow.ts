@@ -63,10 +63,10 @@ classicFlowRouter.post('/create', async (req, res) => {
         key: 'deliveryAddress',
         value: [
           {
-            streetAddress: '42, rue UpSignOn Démo\nTest',
-            postalCode: '4242',
-            city: 'UpSignOn City',
-            country: 'dataSmine',
+            streetAddress: 'Étage 7,\n42, rue Démo',
+            postalCode: '0123',
+            city: 'Ville Démo',
+            country: 'Pays Démo',
             otherInfo: 'code 1984',
           },
           {
@@ -86,7 +86,7 @@ classicFlowRouter.post('/create', async (req, res) => {
             streetAddress: 'Billing Address',
             postalCode: '4242',
             city: 'Comptable City',
-            country: 'BillingCity',
+            country: 'BillingCountry',
           },
         ],
       },
