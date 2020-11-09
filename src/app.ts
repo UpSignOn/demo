@@ -34,7 +34,7 @@ app.use(session(sessionParams));
 
 app.use('/demo', demoApiRouter);
 app.use('/classic', classicFlowRouter);
-app.use(express.static('public'));
+app.use('/', express.static(env.PUBLIC_PATH));
 
 if (module === require.main) {
   startServer(app);

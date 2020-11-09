@@ -31,16 +31,20 @@ const checkPassword = async (userId: string, password: string): Promise<boolean>
 demoApiRouter.get('/config', async (req, res) => {
   try {
     const lang = req.query.lang;
+    const isRaoul = env.BASE_URL.indexOf('raoul') !== -1;
+    const legalTerms = isRaoul
+      ? []
+      : [
+          {
+            id: '1',
+            date: '2020-01-01',
+            link: 'https://upsignon.eu/terms-of-service/fr/20200209.pdf',
+            translatedText: 'CGU',
+          },
+        ];
     return res.status(200).json({
       version: CONFIG_VERSION,
-      legalTerms: [
-        {
-          id: '1',
-          date: '2020-01-01',
-          link: 'https://upsignon.eu/terms-of-service/fr/20200209.pdf',
-          translatedText: 'CGU',
-        },
-      ],
+      legalTerms,
       fields: [
         { type: 'firstname', key: 'firstname', mandatory: true },
         { type: 'lastname', key: 'lastname', mandatory: true },
@@ -88,23 +92,24 @@ demoApiRouter.get('/config', async (req, res) => {
 demoApiRouter.get('/button-config', async (req, res) => {
   try {
     const buttonId = req.query.buttonId;
+    const fields = [
+      { type: 'firstname', key: 'firstname', mandatory: true },
+      { type: 'lastname', key: 'lastname', mandatory: true },
+      { type: 'title', key: 'title', mandatory: false },
+      { type: 'dateOfBirth', key: 'dateOfBirth', mandatory: false },
+      { type: 'email', key: 'email1', mandatory: true },
+      { type: 'email', key: 'email2', mandatory: false },
+      { type: 'phoneNumber', key: 'phoneNumber', mandatory: true },
+      { type: 'postalAddress', key: 'deliveryAddress', mandatory: true },
+      { type: 'postalAddress', key: 'billingAddress', mandatory: false },
+      { type: 'iban', key: 'iban', mandatory: false },
+      { type: 'newsletterConsent', key: 'newsletterConsent', mandatory: false },
+    ];
     let buttonConfig;
     switch (buttonId) {
       case 'SHOP1': {
         buttonConfig = {
-          fields: [
-            { type: 'firstname', key: 'firstname', mandatory: true },
-            { type: 'lastname', key: 'lastname', mandatory: true },
-            { type: 'title', key: 'title', mandatory: false },
-            { type: 'dateOfBirth', key: 'dateOfBirth', mandatory: false },
-            { type: 'email', key: 'email1', mandatory: true },
-            { type: 'email', key: 'email2', mandatory: false },
-            { type: 'phoneNumber', key: 'phoneNumber', mandatory: true },
-            { type: 'postalAddress', key: 'deliveryAddress', mandatory: true },
-            { type: 'postalAddress', key: 'billingAddress', mandatory: false },
-            { type: 'iban', key: 'iban', mandatory: false },
-            { type: 'newsletterConsent', key: 'newsletterConsent', mandatory: false },
-          ],
+          fields,
           forceFormDisplay: false,
           generalConfigVersion: CONFIG_VERSION,
         };
@@ -112,19 +117,24 @@ demoApiRouter.get('/button-config', async (req, res) => {
       }
       case 'SHOP2': {
         buttonConfig = {
-          fields: [
-            { type: 'firstname', key: 'firstname', mandatory: true },
-            { type: 'lastname', key: 'lastname', mandatory: true },
-            { type: 'title', key: 'title', mandatory: false },
-            { type: 'dateOfBirth', key: 'dateOfBirth', mandatory: false },
-            { type: 'email', key: 'email1', mandatory: true },
-            { type: 'email', key: 'email2', mandatory: false },
-            { type: 'phoneNumber', key: 'phoneNumber', mandatory: true },
-            { type: 'postalAddress', key: 'deliveryAddress', mandatory: true },
-            { type: 'postalAddress', key: 'billingAddress', mandatory: false },
-            { type: 'iban', key: 'iban', mandatory: false },
-            { type: 'newsletterConsent', key: 'newsletterConsent', mandatory: false },
-          ],
+          fields,
+          forceFormDisplay: true,
+          generalConfigVersion: CONFIG_VERSION,
+          disableAccountCreation: true,
+        };
+        break;
+      }
+      case 'RAOUL1': {
+        buttonConfig = {
+          fields,
+          forceFormDisplay: false,
+          generalConfigVersion: CONFIG_VERSION,
+        };
+        break;
+      }
+      case 'RAOUL2': {
+        buttonConfig = {
+          fields,
           forceFormDisplay: true,
           generalConfigVersion: CONFIG_VERSION,
           disableAccountCreation: true,
@@ -240,7 +250,7 @@ demoApiRouter.post('/connect', async (req, res) => {
     if (env.IS_PRODUCTION) {
       switch (buttonId) {
         default:
-          redirectionUri = 'https://monptitshop.upsignon.eu/demo/redirection/';
+          redirectionUri = env.BASE_URL + '/demo/redirection/';
       }
     } else {
       redirectionUri = `${req.protocol}://${req.headers.host}/demo/redirection/`;
@@ -270,7 +280,7 @@ demoApiRouter.get('/redirection/', async (req: any, res: any) => {
 
     req.session.userId = userId;
     if (env.IS_PRODUCTION) {
-      res.redirect(303, 'https://monptitshop.upsignon.eu');
+      res.redirect(303, env.BASE_URL);
     } else {
       res.redirect(303, `${req.protocol}://${req.headers.host}`);
     }

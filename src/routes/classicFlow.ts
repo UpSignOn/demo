@@ -144,12 +144,22 @@ classicFlowRouter.get('/conversion', async (req: any, res: any) => {
       req.session.userId,
     ]);
     if (env.IS_PRODUCTION) {
-      res.redirect(
-        303,
-        `upsignon://protocol/?url=${encodeURIComponent(
-          'https://monptitshop.upsignon.eu/demo',
-        )}&buttonId=SHOP2&connectionToken=${req.session.userId}:${token}`,
-      );
+      const isRaoul = env.BASE_URL.indexOf('raoul') !== -1;
+      if (isRaoul) {
+        res.redirect(
+          303,
+          `upsignon://protocol/?url=${encodeURIComponent(
+            'https://raoul.upsignon.eu/demo',
+          )}&buttonId=RAOUL2&connectionToken=${req.session.userId}:${token}`,
+        );
+      } else {
+        res.redirect(
+          303,
+          `upsignon://protocol/?url=${encodeURIComponent(
+            'https://monptitshop.upsignon.eu/demo',
+          )}&buttonId=SHOP2&connectionToken=${req.session.userId}:${token}`,
+        );
+      }
     } else {
       res.redirect(
         303,

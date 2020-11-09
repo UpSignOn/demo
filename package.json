@@ -7,9 +7,9 @@
     "deploy": "./scripts/deploy.sh",
     "build": "rm -rf dist && tsc -p .",
     "start-dev-db": "brew services start postgresql",
-    "start-dev-": "pm2 start ecosystem.demo.config.js --only demo && pm2 logs demo",
+    "start-dev-": "pm2 start ecosystem.demo.config.js && pm2 logs",
     "start-dev": "yarn build && yarn stop-dev && yarn start-dev-",
-    "stop-dev": "pm2 stop demo",
+    "stop-dev": "pm2 stop ecosystem.demo.config.js",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix"
   },
   "dependencies": {

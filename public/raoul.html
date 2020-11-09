@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta name="robots" content="noindex">
+  <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no" />
+  <link rel="icon" href="data:;base64,=">
+  <meta charset="utf-8" />
+  <title>Raoul</title>
+  <style>
+    html {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 50px;
+    }
+
+    header {
+      background-color: rgb(246, 164, 0);
+      padding: 0 20px;
+      color: white;
+      margin: 0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    #creation {
+      margin: 20px auto;
+      max-width: 400px;
+      padding: 10px 40px 40px 40px;
+      box-shadow: 0 0 10px lightgrey;
+    }
+
+    #creation #classicForm {
+      margin: 40px 0 0 0;
+      display: grid;
+      grid-gap: 20px;
+      grid-template-columns: auto 1fr;
+    }
+
+    #creation #classicForm .input {
+      border: 1px solid grey;
+      border-radius: 2px;
+      padding: 5px;
+      cursor: pointer;
+      color: black;
+    }
+
+    #creation #classicForm .input::placeholder {
+      color: grey;
+    }
+
+    #creation #formButtonContainer {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    #creation #connectionButton,
+    #creation #creationButton {
+      background: rgb(246, 164, 0);
+      opacity: 0.6;
+      border-radius: 2px;
+      color: white;
+      margin-top: 20px;
+      padding: 5px;
+      width: auto;
+      margin: 5px;
+      cursor: pointer;
+    }
+
+    #creation hr {
+      margin: 40px 0;
+    }
+
+    #creation .upsignonContainer {
+      display: flex;
+      justify-content: center;
+    }
+
+    #UpSignOn,
+    #UpSignOnUpdate {
+      display: inline-block;
+      text-align: right;
+    }
+
+    #profile #profileContent {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #profile #profileContent table {
+      box-shadow: 0 0 5px lightgrey;
+      border-radius: 5px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    #profile #profileContent table td {
+      padding: 5px;
+    }
+
+    #profile #profileContent table td:first-child {
+      font-weight: bold;
+    }
+
+    #profile #profileContent #resetButton {
+      background: grey;
+      color: white;
+      border-radius: 3px;
+      padding: 5px;
+      display: inline-block;
+      margin-top: 20px;
+    }
+
+    #profile h2,
+    #shopping h2 {
+      text-align: center;
+    }
+
+    #profile #shoppingButton,
+    #shopping #profileButton {
+      margin: 0 20px;
+      text-decoration: underline;
+      color: rgb(246, 164, 0);
+      cursor: pointer;
+    }
+
+    footer {
+      border-top: 1px solid grey;
+      background: grey;
+      color: white;
+      font-size: 12px;
+      padding: 10px 20px;
+      width: 100%;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    #itemContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    #itemContainer .item {
+      background: lightgrey;
+      border-radius: 5px;
+      box-shadow: 0 0 5px lightgrey;
+      flex: 0;
+      flex-basis: 300px;
+      height: 200px;
+      margin: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Raoul</h1>
+    <h2>Le VTC qui vous ramène des soirées trop arrosées</h2>
+  </header>
+  <div style="flex: 1; padding-bottom: 50px;">
+    <div id="creation">
+      <h2>Bienvenue !</h2>
+      <h3>Veuillez créer un compte ou vous identifier</h3>
+      <div id="classicForm">
+        <div>Email</div>
+        <input type="email" id="email" class="input" placeholder="example@mail.com" />
+        <div>Mot de passe</div>
+        <input type="password" id="password" class="input" placeholder="********" /">
+      </div>
+      <p id="emailEmpty" class="hidden" style="color:red;">Le champ email ne doit pas être vide.</p>
+      <p id="passwordEmpty" class="hidden" style="color:red;">Le champ mot de passe ne doit pas être vide.</p>
+      <p id="passwordMismatch" class="hidden" style="color:red;">Ces identifiants sont erronés.</p>
+      <p id="loginAlreadyUsed" class="hidden" style="color:red;">Ce login est déjà utilisé.</p>
+      <div id="formButtonContainer">
+        <div id="connectionButton">Connexion</div>
+        <div id="creationButton">Créer un compte</div>
+      </div>
+      <hr />
+      <div class="upsignonContainer">
+        <div id="UpSignOn"></div>
+      </div>
+    </div>
+
+    <div id="profile">
+      <h2>Voici les informations que vous partagez avec nous</h2>
+      <div id="shoppingButton">Retour sur la page de réservation</div>
+      <div id="profileContent">
+        <table>
+          <tbody id="info"></tbody>
+        </table>
+        <div class="upsignonContainer">
+          <div id="UpSignOnUpdate"></div>
+        </div>
+        <div id="resetButton">Déconnexion</div>
+      </div>
+    </div>
+
+    <div id="shopping">
+      <h2>Bonjour</h2>
+      <div id="profileButton">Voir mon profil</div>
+      <div id="itemContainer">
+        <div class="item"></div>
+        <div class="item"></div>
+        <div class="item"></div>
+        <div class="item"></div>
+        <div class="item"></div>
+        <div class="item"></div>
+        <div class="item"></div>
+      </div>
+    </div>
+
+  </div>
+</body>
+<script type="text/javascript">
+  "use strict";
+  var UpSignOn = (function () {
+    var UPSIGNON_GREEN = "rgb(0, 171, 169)";
+    var UPSIGNON_DEEP_LINK = "upsignon://";
+    var translations = {
+      "confidentialConnection": {
+        "fr": "Connexion confidentielle",
+        "es": "Conexión confidencial",
+        "en": "Confidential connection"
+      },
+      "download": {
+        "fr": "Télécharger l'application UpSignOn",
+        "es": "Descargar la aplicación UpSignOn",
+        "en": "Download the UpSignOn app"
+      }
+    }
+      ;
+    var getProtocolURI = function (request) {
+      var protocolURI = UPSIGNON_DEEP_LINK + "protocol/?url=" + encodeURIComponent(request.url) + "&buttonId=" + encodeURIComponent(request.buttonId);
+      if (request.connectionToken) {
+        protocolURI += "&connectionToken=" + encodeURIComponent(request.connectionToken);
+      }
+      return protocolURI;
+    };
+    var getSVGLogo = function (width) {
+      return `<svg width="${width}" height="${width}" viewBox="0 0 120 120" preserveAspectRatio="xMidYMid meet"><rect x="0" y="0" fill="${UPSIGNON_GREEN}" width="120" height="120"/><svg fill="white" stroke-width="0" x="10" y="10"><path d="M50.00,1.00a17 17 0 1 0 0,34a17 17 0 1 0 0,-34v7a10 10 0 0 1 0,20a10 10 0 1 1 0,-20Z"/><path d="M24.63,27.23A27 27 0 0 0 75.37,27.23A3.5 3.5 20 1 1 81.95,29.63A34 34 0 0 1 18.05,29.63A3.5 3.5 -20 1 1 24.63,27.23Z"/><path d="M8.65,33.05A44 44 0 0 0 91.35,33.05A3.5 3.5 20 1 1 97.92,35.44A51 51 0 0 1 2.08,35.44A3.5 3.5 -20 1 1 8.65,33.05Z"/><circle cx="50.00" cy="89.00" r="10"/></svg></svg>`;
+    };
+    var getButtonText = function () {
+      var lang = navigator.language || navigator.userLanguage;
+      return translations.confidentialConnection[lang.substring(0, 2)] || translations.confidentialConnection['en'];
+    }
+    var getDownloadText = function () {
+      var lang = navigator.language || navigator.userLanguage;
+      return translations.download[lang.substring(0, 2)] || translations.download['en'];
+    }
+    var addButtonContent = function (buttonContainer, protocolURI, uiConfig) {
+      var linkElement = document.createElement("a");
+      linkElement.href = protocolURI;
+      linkElement.style.backgroundColor = UPSIGNON_GREEN;
+      linkElement.style.padding = uiConfig.padding || "5px 15px 5px 5px";
+      linkElement.style.display = "flex";
+      linkElement.style.flexDirection = "row";
+      linkElement.style.flexWrap = "nowrap";
+      linkElement.style.alignItems = "center";
+      linkElement.style.justifyContent = "flex-start";
+      linkElement.style.textDecoration = "none";
+      linkElement.style.borderRadius = uiConfig.borderRadius || "5px";
+      var logoContainer = document.createElement("div");
+      logoContainer.style.display = "flex";
+      logoContainer.style.justifyContent = "center";
+      logoContainer.innerHTML = getSVGLogo(uiConfig.logoWidth || 50);
+      var textContainer = document.createElement("div");
+      textContainer.innerHTML = "<div>UpSignOn</div><div>" + getButtonText() + "</div>";
+      textContainer.style.lineHeight = "1.3em";
+      textContainer.style.textAlign = "left";
+      textContainer.style.color = "white";
+      textContainer.style.flex = "1";
+      var padding = uiConfig.spaceBetween || "5px";
+      textContainer.style.paddingLeft = padding;
+      textContainer.style.paddingRight = padding;
+      linkElement.appendChild(logoContainer);
+      linkElement.appendChild(textContainer);
+      buttonContainer.innerHTML = "";
+      buttonContainer.appendChild(linkElement);
+
+      var websiteLinkNode = document.createElement("a");
+      websiteLinkNode.innerText = getDownloadText();
+      websiteLinkNode.target = "_blank";
+      websiteLinkNode.href = 'https://upsignon.eu';
+      buttonContainer.appendChild(websiteLinkNode);
+    };
+
+    var changeText = function (buttonContainer, newTextNodes, removeWebsiteFallBack) {
+      buttonContainer.querySelector("a:first-of-type>:last-child").innerHTML = newTextNodes;
+      if (removeWebsiteFallBack) {
+        var websiteLink = buttonContainer.querySelector("a[href='https://upsignon.eu/']");
+        if (websiteLink) {
+          websiteLink.style.display = 'none';
+        }
+      }
+    };
+
+    return {
+      addButtonContent: addButtonContent,
+      changeText: changeText,
+      getProtocolURI: getProtocolURI,
+      getSVGLogo: getSVGLogo,
+      getButtonText: getButtonText,
+      getDownloadText: getDownloadText,
+      color: UPSIGNON_GREEN
+    };
+  })();
+</script>
+<script type="text/javascript">
+  function getData() {
+    return new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if (!xhr.responseText) return resolve(null);
+          try {
+            var body = JSON.parse(xhr.responseText);
+            resolve(body.data);
+          } catch {
+            resolve(null);
+          }
+        }
+      };
+      xhr.open('POST', "/classic/data");
+      xhr.send();
+    });
+  }
+</script>
+
+<script type="text/javascript">
+  /************ Display logic *************/
+  function toUpperFirst(value) {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  };
+  function displayInfo(data) {
+    var node = document.getElementById("info");
+    node.innerHTML = '';
+    data.forEach(function (valueField) {
+      var infoNode = document.createElement('tr');
+      var infoValue = valueField.value;
+      var displayedValue = infoValue || '';
+      if (infoValue) {
+        if (valueField.type === 'email') {
+          displayedValue = infoValue.address;
+        }
+        if (valueField.type === 'phoneNumber') {
+          displayedValue = infoValue.number;
+        }
+        if (valueField.type === 'postalAddress') {
+          displayedValue = '';
+          infoValue.forEach(function (a, i) {
+            if (i > 0) {
+              displayedValue += '<hr/>';
+            }
+            displayedValue += a.streetAddress + ', ' + a.postalCode + ' ' + a.city + ', ' + a.country;
+          })
+        }
+        if (valueField.type === 'iban') {
+          displayedValue = infoValue.IBAN + '\n' + (infoValue.BIC || '-');
+        }
+        if (valueField.type === 'newsletterConsent') {
+          displayedValue = "";
+          Object.keys(infoValue).forEach(function (mean) {
+            if (infoValue[mean]) {
+              displayedValue += displayedValue.length === 0 ? mean : " - " + mean;
+            }
+          });
+          if (displayedValue === "") {
+            displayedValue = "NO";
+          }
+        }
+      }
+      infoNode.innerHTML = '<td>' + toUpperFirst(valueField.key) + '</td><td>' + displayedValue + '</td>';
+      node.appendChild(infoNode);
+    });
+  }
+
+  var resetButton = document.getElementById("resetButton");
+  var shoppingButton = document.getElementById("shoppingButton");
+  var profileButton = document.getElementById("profileButton");
+  var creationPage = document.getElementById("creation");
+  var shoppingPage = document.getElementById("shopping");
+  var profilePage = document.getElementById("profile");
+
+  var UpSignOnButton = document.getElementById("UpSignOn");
+
+  function checkForData() {
+    getData().then(function (data) {
+      if (!data) {
+        creationPage.classList.remove("hidden");
+        shoppingPage.classList.add("hidden");
+        profilePage.classList.add("hidden");
+      } else {
+        creationPage.classList.add("hidden");
+        shoppingPage.classList.remove("hidden");
+        profilePage.classList.add("hidden");
+        var firstnameField = data.find(d => d.type === "firstname");
+        shoppingPage.querySelector("h2").innerHTML = "Bonjour " + (firstnameField ? firstnameField.value : '');
+        displayInfo(data);
+      }
+    });
+  };
+  function sendForm(route) {
+    var email = document.getElementById("email");
+    var password = document.getElementById("password");
+    var emailEmpty = document.getElementById("emailEmpty");
+    var passwordEmpty = document.getElementById("passwordEmpty");
+    var loginAlreadyUsed = document.getElementById("loginAlreadyUsed");
+    var passwordMismatch = document.getElementById("passwordMismatch");
+
+    emailEmpty.classList.add("hidden");
+    passwordEmpty.classList.add("hidden");
+    loginAlreadyUsed.classList.add("hidden");
+    passwordMismatch.classList.add("hidden");
+    if (!email.value) {
+      document.getElementById("emailEmpty").classList.remove("hidden");
+      return;
+    }
+    if (!password.value) {
+      document.getElementById("passwordEmpty").classList.remove("hidden");
+      return;
+    }
+    new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) return resolve();
+          else if (xhr.status === 409) return reject(new Error("conflict"));
+          else return reject();
+        }
+      };
+      xhr.open('POST', route);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.send(JSON.stringify({ email: email.value.toLowerCase(), password: password.value }));
+    }).then(function () {
+      checkForData();
+    }).catch(function (e) {
+      if (!!e && e.message === "conflict") {
+        loginAlreadyUsed.classList.remove("hidden");
+      } else {
+        passwordMismatch.classList.remove("hidden");
+      }
+    });
+  }
+  function init() {
+    document.getElementById("connectionButton").addEventListener("click", function () {
+      sendForm("/classic/login")
+    });
+    document.getElementById("creationButton").addEventListener("click", function () {
+      sendForm("/classic/create")
+    });
+    profileButton.addEventListener("click", function () {
+      shoppingPage.classList.add("hidden");
+      profilePage.classList.remove("hidden");
+    });
+    shoppingButton.addEventListener("click", function () {
+      shoppingPage.classList.remove("hidden");
+      profilePage.classList.add("hidden");
+    });
+
+    resetButton.addEventListener("click", function () {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/classic/disconnect', false);
+      xhr.send();
+      init();
+    });
+
+    var request = {
+      url: window.location.origin + "/demo",
+      buttonId: "RAOUL1",
+    };
+    var protocolURI = UpSignOn.getProtocolURI(request);
+    UpSignOn.addButtonContent(UpSignOnButton, protocolURI, {});
+
+    var UpSignOnUpdateButton = document.getElementById("UpSignOnUpdate");
+    UpSignOn.addButtonContent(UpSignOnUpdateButton, "/classic/conversion", {});
+    UpSignOn.changeText(UpSignOnUpdateButton, "Modifier ces informations avec UpSignOn", true);
+    checkForData();
+  }
+  init();
+</script>
+
+</html>

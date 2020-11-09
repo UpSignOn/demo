@@ -11,13 +11,11 @@ export const startServer = (app: any) => {
       key: fs.readFileSync(env.CERTIFICATE_DIR_PATH + '/server.key'),
       cert: fs.readFileSync(env.CERTIFICATE_DIR_PATH + '/server.crt'),
     };
-    const server = https.createServer(options, app).listen(env.PORT || 3001, () => {
+    const server = https.createServer(options, app).listen(env.PORT, () => {
       console.log('Production server listening', server.address());
     });
     listenForGracefulShutdown(server);
   } else {
-    const express = require('express');
-    app.use('/', express.static('devPublic'));
     const server = app.listen(8888, () => {
       console.log(`Dev server listening`, server.address());
     });

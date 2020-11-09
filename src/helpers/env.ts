@@ -8,6 +8,8 @@ const {
   DB_PASS,
   SESSION_KEY_SECRET,
   CERTIFICATE_DIR_PATH,
+  BASE_URL,
+  PUBLIC_PATH,
 } = process.env;
 
 export default {
@@ -20,4 +22,6 @@ export default {
   DB_PASS,
   SESSION_KEY_SECRET,
   CERTIFICATE_DIR_PATH,
+  BASE_URL: BASE_URL || '',
+  PUBLIC_PATH: PUBLIC_PATH || '',
 };
