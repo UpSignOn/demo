@@ -16,8 +16,11 @@ const isTokenExpired = (created_at: Date) => {
 const checkPassword = async (userId:string, password: string): Promise<boolean>=>{
   try {
     if (!password) return false;
-    const dbRes = await db.query("SELECT password_hash FROM demo_users WHERE id=$1", [userId]);
-    if (dbRes.rowCount === 0) return false;
+    let dbRes;
+    try {
+      dbRes = await db.query("SELECT password_hash FROM demo_users WHERE id=$1", [userId]);
+    }catch{}
+    if (!dbRes ||dbRes.rowCount === 0) return false;
     const isOk: boolean = await passwordHash.isOk(password, dbRes.rows[0].password_hash);
     return isOk;
   }catch {
@@ -159,8 +162,11 @@ demoApiRouter.post("/convert-account", async (req, res) => {
     let userId;
     let userData;
     if(!!login && !!password) {
-      const dbRes = await db.query("SELECT id, data, password_hash FROM demo_users WHERE login=$1", [login]);
-      if(dbRes.rowCount === 0) return res.status(401).end();
+      let dbRes;
+      try{
+        dbRes = await db.query("SELECT id, data, password_hash FROM demo_users WHERE login=$1", [login]);
+      }catch{}
+      if(!dbRes || dbRes.rowCount === 0) return res.status(401).end();
       const isPasswordOK = await passwordHash.isOk(password, dbRes.rows[0].password_hash);
       if(!isPasswordOK) return res.status(401).end();
       userId=dbRes.rows[0].id;
@@ -168,8 +174,11 @@ demoApiRouter.post("/convert-account", async (req, res) => {
     } else {
       const [id, token] = connectionToken.split(':');
       if(!id || !token) return res.status(401).end();
-      const currentRes = await db.query("SELECT data, token_created_at FROM demo_users WHERE id=$1 AND token=$2", [id, token]);
-      if(currentRes.rowCount === 0) return res.status(401).end();
+      let currentRes;
+      try{
+        currentRes = await db.query("SELECT data, token_created_at FROM demo_users WHERE id=$1 AND token=$2", [id, token]);
+      }catch{}
+      if(!currentRes || currentRes.rowCount === 0) return res.status(401).end();
       // do not check for token expired during the conversion step.
       // if(isTokenExpired(currentRes.rows[0].token_created_at)) return res.status(401).end();
       await db.query("UPDATE demo_users SET token=null, token_created_at=null WHERE id=$1", [id]);
@@ -200,7 +209,11 @@ demoApiRouter.post("/connect", async (req, res) => {
     if(!isOk) return res.status(401).end();
 
     const connectionToken = uuidv4();
-    await db.query("UPDATE demo_users SET token=$1, token_created_at=$2 WHERE id=$3", [connectionToken, new Date(), id]);
+    try {
+      await db.query("UPDATE demo_users SET token=$1, token_created_at=$2 WHERE id=$3", [connectionToken, new Date(), id]);
+    }catch{
+      return res.status(400).end();
+    }
     let redirectionUri;
     if(env.IS_PRODUCTION) {
       switch(buttonId) {
@@ -222,8 +235,11 @@ demoApiRouter.get("/redirection/", async (req:any, res:any) => {
     const userId = req.query.userId;
     const connectionToken = req.query.connectionToken;
     if(!userId ||!connectionToken) return res.status(404).end();
-    const dbRes = await db.query("SELECT token_created_at FROM demo_users WHERE id=$1 AND token=$2", [userId, connectionToken]);
-    if(dbRes.rowCount !==1) return res.status(401).end(); // TODO ERROR PAGE
+    let dbRes;
+    try{
+      dbRes = await db.query("SELECT token_created_at FROM demo_users WHERE id=$1 AND token=$2", [userId, connectionToken]);
+    }catch{}
+    if(!dbRes || dbRes.rowCount !==1) return res.status(401).end(); // TODO ERROR PAGE
     if(isTokenExpired(dbRes.rows[0].token_created_at)) return res.status(401).end();// TODO ERROR PAGE
     await db.query("UPDATE demo_users SET token=null, token_created_at=null WHERE id=$1", [userId]);
 
@@ -288,8 +304,11 @@ demoApiRouter.post("/delete-account-and-data", async (req, res) => {
     const id = req.body.userId;
     if (!id) return res.status(400).end();
     if (!password) return res.status(401).end();
-    const dbRes = await db.query("SELECT password_hash FROM demo_users WHERE id=$1", [id]);
-    if (dbRes.rowCount === 0) return res.status(200).json({ deletionStatus: "DONE" });
+    let dbRes;
+    try {
+      dbRes = await db.query("SELECT password_hash FROM demo_users WHERE id=$1", [id]);
+    }catch{}
+    if (!dbRes||dbRes.rowCount === 0) return res.status(200).json({ deletionStatus: "DONE" });
     const isOk:boolean  = await passwordHash.isOk(password, dbRes.rows[0].password_hash);
     if (!isOk) return res.status(401).end();
     await db.query("DELETE FROM demo_users WHERE id=$1", [id]);
@@ -306,8 +325,11 @@ demoApiRouter.post("/get-account-deletion-status", async (req, res) => {
   const id = req.body.userId;
   if (!id) return res.status(400).end();
   if (!password) return res.status(401).end();
-  const dbRes = await db.query("SELECT password_hash FROM demo_users WHERE id=$1", [id]);
-  if (dbRes.rowCount === 0) return res.status(200).json({ deletionStatus: "DONE" });
+  let dbRes;
+  try {
+    dbRes = await db.query("SELECT password_hash FROM demo_users WHERE id=$1", [id]);
+  }catch{}
+  if (!dbRes || dbRes.rowCount === 0) return res.status(200).json({ deletionStatus: "DONE" });
   const isOk:boolean  = await passwordHash.isOk(password, dbRes.rows[0].password_hash);
   if (!isOk) return res.status(401).end();
   res.status(200).json({ deletionStatus: "PENDING" });

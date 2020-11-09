@@ -12,8 +12,13 @@ classicFlowRouter.post("/login", async(req, res)=>{
     const email = req.body.email;
     const password = req.body.password;
     if(!email || !password) return res.status(401).end();
-    const dbRes = await db.query("SELECT id, password_hash FROM demo_users WHERE login=$1 OR id=$1", [email]);
-    if(dbRes.rowCount === 0) return res.status(401).end();
+    let dbRes;
+    try {
+      dbRes = await db.query("SELECT id, password_hash FROM demo_users WHERE login=$1 OR id=$1", [email]);
+    }catch{
+      // do nothing
+    }
+    if(!dbRes || dbRes.rowCount === 0) return res.status(401).end();
     const isOK:boolean = await passwordHash.isOk(password, dbRes.rows[0].password_hash);
     if (!isOK) return res.status(401).end();
     // @ts-ignore
@@ -31,8 +36,11 @@ classicFlowRouter.post("/create", async(req, res)=>{
     const password = req.body.password;
     if(!email || !password) return res.status(401).end();
 
-    var dbGet = await db.query("SELECT id FROM demo_users WHERE login=$1 OR id=$1", [email]);
-    if(dbGet.rowCount!== 0) return res.status(409).end();
+    let dbGet;
+    try{
+      dbGet= await db.query("SELECT id FROM demo_users WHERE login=$1 OR id=$1", [email]);
+    }catch{}
+    if(!dbGet || dbGet.rowCount!== 0) return res.status(409).end();
     var fakeData = [
       { type: "firstname", key: "firstname", value: "FakeFirstname" },
       { type: "lastname", key: "lastname", value: "FakeLastname" },
@@ -96,8 +104,11 @@ classicFlowRouter.post("/create", async(req, res)=>{
 classicFlowRouter.post("/data", async (req:any, res:any) => {
   try {
     if (!req.session || !req.session.userId) return res.status(401).end();
-    const dbRes = await db.query("SELECT data FROM demo_users WHERE id=$1",[req.session.userId]);
-    if(dbRes.rowCount !== 1) {
+    let dbRes;
+    try{
+      dbRes = await db.query("SELECT data FROM demo_users WHERE id=$1",[req.session.userId]);
+    }catch{}
+    if(!dbRes||dbRes.rowCount !== 1) {
       req.session.destroy();
       return res.status(401).end();
     }
