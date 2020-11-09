@@ -43,38 +43,35 @@ classicFlowRouter.post('/create', async (req, res) => {
     } catch {}
     if (!dbGet || dbGet.rowCount !== 0) return res.status(409).end();
     const fakeData = [
-      { type: 'firstname', key: 'firstname', value: 'FakeFirstname' },
-      { type: 'lastname', key: 'lastname', value: 'FakeLastname' },
+      { type: 'firstname', key: 'firstname', value: 'Paul' },
+      { type: 'lastname', key: 'lastname', value: 'Latournerie' },
       { type: 'title', key: 'title', value: 'M' },
-      { type: 'dateOfBirth', key: 'dateOfBirth', value: '2000-07-14' },
+      { type: 'dateOfBirth', key: 'dateOfBirth', value: '1980-04-26' },
       {
         type: 'email',
         key: 'email1',
-        value: { address: 'fake-perso@email.fr', isValidated: false },
+        value: { address: 'paull@upsignon.eu', isValidated: false },
       },
-      { type: 'email', key: 'email2', value: { address: 'fake-pro@email.fr', isValidated: false } },
+      {
+        type: 'email',
+        key: 'email2',
+        value: { address: 'contact@upsignon.eu', isValidated: false },
+      },
       {
         type: 'phoneNumber',
         key: 'phoneNumber',
-        value: { number: '+33911911911', isValidated: false },
+        value: { number: '+33627590702', isValidated: false },
       },
       {
         type: 'postalAddress',
         key: 'deliveryAddress',
         value: [
           {
-            streetAddress: 'Étage 7,\n42, rue Démo',
-            postalCode: '0123',
-            city: 'Ville Démo',
-            country: 'Pays Démo',
-            otherInfo: 'code 1984',
-          },
-          {
-            streetAddress: '24, avenue dataSmine',
-            postalCode: '2424',
-            city: 'Tatooine',
-            country: 'Web',
-            otherInfo: 'two suns',
+            streetAddress: '9 rue Jacqueline Auriol',
+            postalCode: '31860',
+            city: 'Pins-Justaret',
+            country: 'France',
+            otherInfo: '',
           },
         ],
       },
@@ -83,10 +80,11 @@ classicFlowRouter.post('/create', async (req, res) => {
         key: 'billingAddress',
         value: [
           {
-            streetAddress: 'Billing Address',
-            postalCode: '4242',
-            city: 'Comptable City',
-            country: 'BillingCountry',
+            streetAddress: '9 rue Jacqueline Auriol',
+            postalCode: '31860',
+            city: 'Pins-Justaret',
+            country: 'France',
+            otherInfo: '',
           },
         ],
       },
