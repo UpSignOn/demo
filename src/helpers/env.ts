@@ -12,7 +12,7 @@ const {
 
 export default {
   PORT,
-  IS_PRODUCTION: NODE_ENV === "production",
+  IS_PRODUCTION: NODE_ENV === 'production',
   DB_HOST,
   DB_PORT,
   DB_USER,

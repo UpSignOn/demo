@@ -1,7 +1,7 @@
-import { db } from "./db-connection";
-var oneDay = 86400; // seconds
+import { db } from './db-connection';
+const oneDay = 86400; // seconds
 
-module.exports = function(session: any) {
+export default function (session: any): any {
   const Store = session.Store;
 
   function getTimestampSeconds(date?: any) {
@@ -12,11 +12,10 @@ module.exports = function(session: any) {
   }
 
   function dbCleanup() {
-    var now = getTimestampSeconds();
-    db.query(
-      "DELETE FROM demo_sessions WHERE to_timestamp($1) > expiration_time",
-      [now]
-    ).catch(() => {});
+    const now = getTimestampSeconds();
+    db.query('DELETE FROM demo_sessions WHERE to_timestamp($1) > expiration_time', [
+      now,
+    ]).catch(() => {});
   }
 
   function PostgreSQLStore(this: any) {
@@ -29,16 +28,16 @@ module.exports = function(session: any) {
   PostgreSQLStore.prototype = Object.create(Store.prototype);
   PostgreSQLStore.prototype.constructor = PostgreSQLStore;
 
-  PostgreSQLStore.prototype.get = function(
+  PostgreSQLStore.prototype.get = function (
     sid: string,
-    cb: (err?: Error | null, session?: {}) => void
+    cb: (err?: Error | null, session?: any) => void,
   ) {
-    var now = getTimestampSeconds();
+    const now = getTimestampSeconds();
     db.query(
-      "SELECT session_data FROM demo_sessions WHERE session_id = $1::text AND to_timestamp($2) <= expiration_time",
-      [sid, now]
+      'SELECT session_data FROM demo_sessions WHERE session_id = $1::text AND to_timestamp($2) <= expiration_time',
+      [sid, now],
     )
-      .then(function(res) {
+      .then(function (res) {
         if (res.rowCount === 0) {
           return cb();
         }
@@ -47,49 +46,46 @@ module.exports = function(session: any) {
       .catch(cb);
   };
 
-  PostgreSQLStore.prototype.set = function(
+  PostgreSQLStore.prototype.set = function (
     sid: string,
     session: { cookie: { maxAge: number } },
-    cb: (err?: Error) => void
+    cb: (err?: Error) => void,
   ) {
-    var maxAge = Math.floor(session.cookie.maxAge / 1000);
-    var now = getTimestampSeconds();
-    var expiration_time = maxAge ? now + maxAge : now + oneDay;
+    const maxAge = Math.floor(session.cookie.maxAge / 1000);
+    const now = getTimestampSeconds();
+    const expiration_time = maxAge ? now + maxAge : now + oneDay;
 
     db.query(
-      "INSERT INTO demo_sessions (session_id, session_data, expiration_time) VALUES ($1, $2, to_timestamp($3)) ON CONFLICT (session_id) DO UPDATE SET session_data=$2, expiration_time=to_timestamp($3)",
-      [sid, JSON.stringify(session), expiration_time]
+      'INSERT INTO demo_sessions (session_id, session_data, expiration_time) VALUES ($1, $2, to_timestamp($3)) ON CONFLICT (session_id) DO UPDATE SET session_data=$2, expiration_time=to_timestamp($3)',
+      [sid, JSON.stringify(session), expiration_time],
     )
-      .then(function() {
+      .then(function () {
         cb();
       })
       .catch(cb);
   };
 
-  PostgreSQLStore.prototype.destroy = function(
-    sid: string,
-    cb: (err?: Error) => void
-  ) {
-    db.query("DELETE FROM demo_sessions WHERE session_id = $1", [sid])
-      .then(function() {
+  PostgreSQLStore.prototype.destroy = function (sid: string, cb: (err?: Error) => void) {
+    db.query('DELETE FROM demo_sessions WHERE session_id = $1', [sid])
+      .then(function () {
         if (cb) cb();
       })
       .catch(cb);
   };
 
-  PostgreSQLStore.prototype.touch = function(
+  PostgreSQLStore.prototype.touch = function (
     sid: string,
     session: { cookie: { expires: number } },
-    cb: (err?: Error) => void
+    cb: (err?: Error) => void,
   ) {
     if (session && session.cookie && session.cookie.expires) {
-      var now = getTimestampSeconds();
-      var cookieExpires = getTimestampSeconds(session.cookie.expires);
+      const now = getTimestampSeconds();
+      const cookieExpires = getTimestampSeconds(session.cookie.expires);
       db.query(
-        "UPDATE demo_sessions SET expiration_time=to_timestamp($1) WHERE session_id = $2 AND to_timestamp($3) <= expiration_time",
-        [cookieExpires, sid, now]
+        'UPDATE demo_sessions SET expiration_time=to_timestamp($1) WHERE session_id = $2 AND to_timestamp($3) <= expiration_time',
+        [cookieExpires, sid, now],
       )
-        .then(function() {
+        .then(function () {
           cb();
         })
         .catch(cb);
@@ -99,4 +95,4 @@ module.exports = function(session: any) {
   };
 
   return PostgreSQLStore;
-};
+}

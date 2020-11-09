@@ -1,6 +1,6 @@
-import { Pool } from "pg";
-import env from "./env";
-// @ts-ignore
+import { Pool } from 'pg';
+import env from './env';
+
 const pool = new Pool({
   host: env.DB_HOST,
   port: env.DB_PORT ? Number.parseInt(env.DB_PORT) : undefined,
@@ -11,7 +11,7 @@ const pool = new Pool({
 
 const query = (
   text: string,
-  params?: Array<any>
+  params?: Array<any>,
 ): Promise<{
   rows: any[];
   fields: { name: string }[];
