@@ -192,6 +192,12 @@ demoApiRouter.post('/create-account', async (req, res) => {
     const email1 = data.find((d: any) => d.key === 'email1');
     const login = email1?.value?.address;
     if (!login) return res.status(403).json({ message: 'email address is empty' });
+    // TODO ? prevent adding a user with an email that is already registered (but allow monptitshop and raoul to their own users)
+    // const existingUserSearch = await db.query('SELECT COUNT(*) FROM demo_users WHERE login=$1', [
+    //   login,
+    // ]);
+    // if (parseInt(existingUserSearch.rows[0].count) > 0)
+    //   return res.status(403).json({ message: 'Un compte avec cet email existe déjà.' });
     await db.query(
       'INSERT INTO demo_users (id, login, password_hash, data) VALUES ($1, $2, $3, $4)',
       [id, login, hash, JSON.stringify(data)],
