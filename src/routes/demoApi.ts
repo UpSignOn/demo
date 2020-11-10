@@ -32,57 +32,81 @@ demoApiRouter.get('/config', async (req, res) => {
   try {
     const lang = req.query.lang;
     const isRaoul = env.BASE_URL.indexOf('raoul') !== -1;
-    const legalTerms = isRaoul
-      ? []
-      : [
+
+    if (isRaoul) {
+      return res.status(200).json({
+        version: CONFIG_VERSION,
+        legalTerms: [],
+        fields: [
+          { type: 'firstname', key: 'firstname', mandatory: true },
+          { type: 'lastname', key: 'lastname', mandatory: true },
+          {
+            type: 'email',
+            key: 'email1',
+            mandatory: true,
+            variant: 'custom',
+            customLabel: 'Email perso',
+          },
+          { type: 'phoneNumber', key: 'phoneNumber', mandatory: true },
+          {
+            type: 'postalAddress',
+            key: 'deliveryAddress',
+            mandatory: true,
+            variant: 'custom',
+            customLabel: 'Delivery address',
+          },
+        ],
+      });
+    } else {
+      return res.status(200).json({
+        version: CONFIG_VERSION,
+        legalTerms: [
           {
             id: '1',
             date: '2020-01-01',
             link: 'https://upsignon.eu/terms-of-service/fr/20200209.pdf',
             translatedText: 'CGU',
           },
-        ];
-    return res.status(200).json({
-      version: CONFIG_VERSION,
-      legalTerms,
-      fields: [
-        { type: 'firstname', key: 'firstname', mandatory: true },
-        { type: 'lastname', key: 'lastname', mandatory: true },
-        { type: 'title', key: 'title', mandatory: false },
-        { type: 'dateOfBirth', key: 'dateOfBirth', mandatory: false },
-        {
-          type: 'email',
-          key: 'email1',
-          mandatory: true,
-          variant: 'custom',
-          customLabel: 'Email perso',
-        },
-        {
-          type: 'email',
-          key: 'email2',
-          mandatory: false,
-          variant: 'custom',
-          customLabel: 'Email pro',
-        },
-        { type: 'phoneNumber', key: 'phoneNumber', mandatory: true },
-        {
-          type: 'postalAddress',
-          key: 'deliveryAddress',
-          mandatory: true,
-          variant: 'custom',
-          customLabel: 'Delivery address',
-        },
-        {
-          type: 'postalAddress',
-          key: 'billingAddress',
-          mandatory: false,
-          variant: 'custom',
-          customLabel: 'Billing address',
-        },
-        { type: 'iban', key: 'iban', mandatory: false },
-        { type: 'newsletterConsent', key: 'newsletterConsent', mandatory: false },
-      ],
-    });
+        ],
+        fields: [
+          { type: 'firstname', key: 'firstname', mandatory: true },
+          { type: 'lastname', key: 'lastname', mandatory: true },
+          { type: 'title', key: 'title', mandatory: false },
+          { type: 'dateOfBirth', key: 'dateOfBirth', mandatory: false },
+          {
+            type: 'email',
+            key: 'email1',
+            mandatory: true,
+            variant: 'custom',
+            customLabel: 'Email perso',
+          },
+          {
+            type: 'email',
+            key: 'email2',
+            mandatory: false,
+            variant: 'custom',
+            customLabel: 'Email pro',
+          },
+          { type: 'phoneNumber', key: 'phoneNumber', mandatory: true },
+          {
+            type: 'postalAddress',
+            key: 'deliveryAddress',
+            mandatory: true,
+            variant: 'custom',
+            customLabel: 'Delivery address',
+          },
+          {
+            type: 'postalAddress',
+            key: 'billingAddress',
+            mandatory: false,
+            variant: 'custom',
+            customLabel: 'Billing address',
+          },
+          { type: 'iban', key: 'iban', mandatory: false },
+          { type: 'newsletterConsent', key: 'newsletterConsent', mandatory: false },
+        ],
+      });
+    }
   } catch (e) {
     console.error(e);
     res.status(500).end();
@@ -92,7 +116,7 @@ demoApiRouter.get('/config', async (req, res) => {
 demoApiRouter.get('/button-config', async (req, res) => {
   try {
     const buttonId = req.query.buttonId;
-    const fields = [
+    const monptitShopFields = [
       { type: 'firstname', key: 'firstname', mandatory: true },
       { type: 'lastname', key: 'lastname', mandatory: true },
       { type: 'title', key: 'title', mandatory: false },
@@ -105,11 +129,18 @@ demoApiRouter.get('/button-config', async (req, res) => {
       { type: 'iban', key: 'iban', mandatory: false },
       { type: 'newsletterConsent', key: 'newsletterConsent', mandatory: false },
     ];
+    const raoulFields = [
+      { type: 'firstname', key: 'firstname', mandatory: true },
+      { type: 'lastname', key: 'lastname', mandatory: true },
+      { type: 'email', key: 'email1', mandatory: true },
+      { type: 'phoneNumber', key: 'phoneNumber', mandatory: true },
+      { type: 'postalAddress', key: 'deliveryAddress', mandatory: true },
+    ];
     let buttonConfig;
     switch (buttonId) {
       case 'SHOP1': {
         buttonConfig = {
-          fields,
+          fields: monptitShopFields,
           forceFormDisplay: false,
           generalConfigVersion: CONFIG_VERSION,
         };
@@ -117,7 +148,7 @@ demoApiRouter.get('/button-config', async (req, res) => {
       }
       case 'SHOP2': {
         buttonConfig = {
-          fields,
+          fields: monptitShopFields,
           forceFormDisplay: true,
           generalConfigVersion: CONFIG_VERSION,
           disableAccountCreation: true,
@@ -126,7 +157,7 @@ demoApiRouter.get('/button-config', async (req, res) => {
       }
       case 'RAOUL1': {
         buttonConfig = {
-          fields,
+          fields: raoulFields,
           forceFormDisplay: false,
           generalConfigVersion: CONFIG_VERSION,
         };
@@ -134,7 +165,7 @@ demoApiRouter.get('/button-config', async (req, res) => {
       }
       case 'RAOUL2': {
         buttonConfig = {
-          fields,
+          fields: raoulFields,
           forceFormDisplay: true,
           generalConfigVersion: CONFIG_VERSION,
           disableAccountCreation: true,
