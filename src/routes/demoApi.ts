@@ -6,7 +6,7 @@ import env from '../helpers/env';
 
 export const demoApiRouter = express.Router();
 
-const CONFIG_VERSION = '1';
+const CONFIG_VERSION = '2';
 
 const isTokenExpired = (created_at: Date) => {
   const expirationTime = 60 * 1000; // 1 minute
@@ -94,6 +94,7 @@ demoApiRouter.get('/config', async (req, res) => {
             mandatory: true,
             variant: 'custom',
             customLabel: 'Delivery address',
+            maxSize: 3,
           },
           {
             type: 'postalAddress',
@@ -101,6 +102,7 @@ demoApiRouter.get('/config', async (req, res) => {
             mandatory: false,
             variant: 'custom',
             customLabel: 'Billing address',
+            maxSize: 1,
           },
           { type: 'iban', key: 'iban', mandatory: false },
           { type: 'newsletterConsent', key: 'newsletterConsent', mandatory: false },
