@@ -130,7 +130,7 @@ classicFlowRouter.post('/data', async (req: any, res: any) => {
     res.status(500).end();
   }
 });
-classicFlowRouter.get('/conversion', async (req: any, res: any) => {
+classicFlowRouter.get('/export', async (req: any, res: any) => {
   try {
     if (!req.session || !req.session.userId) {
       req.session.destroy();

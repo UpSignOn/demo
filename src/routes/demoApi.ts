@@ -209,7 +209,7 @@ demoApiRouter.post('/create-account', async (req, res) => {
   }
 });
 
-demoApiRouter.post('/convert-account', async (req, res) => {
+const exportAccount = async (req: any, res: any) => {
   try {
     const password = req.body.currentPassword;
     const login = req.body.currentLogin;
@@ -244,7 +244,7 @@ demoApiRouter.post('/convert-account', async (req, res) => {
         );
       } catch {}
       if (!currentRes || currentRes.rowCount === 0) return res.status(401).end();
-      // do not check for token expired during the conversion step.
+      // do not check for token expired during the export step.
       // if(isTokenExpired(currentRes.rows[0].token_created_at)) return res.status(401).end();
       await db.query('UPDATE demo_users SET token=null, token_created_at=null WHERE id=$1', [id]);
       userId = id;
@@ -260,7 +260,10 @@ demoApiRouter.post('/convert-account', async (req, res) => {
     console.error(e);
     res.status(500).end();
   }
-});
+};
+// TODO remove after app update
+demoApiRouter.post('/convert-account', exportAccount);
+demoApiRouter.post('/export-account', exportAccount);
 
 demoApiRouter.post('/connect', async (req, res) => {
   try {
