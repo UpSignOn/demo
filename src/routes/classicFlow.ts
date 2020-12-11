@@ -23,6 +23,7 @@ classicFlowRouter.post('/login', async (req, res) => {
     if (!dbRes || dbRes.rowCount === 0) return res.status(401).end();
     const isOK: boolean = await passwordHash.isOk(password, dbRes.rows[0].password_hash);
     if (!isOK) return res.status(401).end();
+    // @ts-ignore
     if (req.session) req.session.userId = dbRes.rows[0].id;
     return res.status(200).end();
   } catch (e) {
@@ -101,6 +102,7 @@ classicFlowRouter.post('/create', async (req, res) => {
       'INSERT INTO demo_users (id, login, password_hash, data) VALUES ($1, $2, $3, $4)',
       [newId, email, hash, JSON.stringify(fakeData)],
     );
+    // @ts-ignore
     if (req.session) req.session.userId = newId;
     return res.status(200).end();
   } catch (e) {
