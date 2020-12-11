@@ -68,9 +68,9 @@ classicFlowRouter.post('/create', async (req, res) => {
         key: 'deliveryAddress',
         value: [
           {
-            streetAddress: '9 rue Jacqueline Auriol',
-            postalCode: '31860',
-            city: 'Pins-Justaret',
+            streetAddress: 'demo street address',
+            postalCode: '75000',
+            city: 'Paris',
             country: 'France',
             otherInfo: '',
           },
@@ -81,9 +81,9 @@ classicFlowRouter.post('/create', async (req, res) => {
         key: 'billingAddress',
         value: [
           {
-            streetAddress: '9 rue Jacqueline Auriol',
-            postalCode: '31860',
-            city: 'Pins-Justaret',
+            treetAddress: 'demo street address',
+            postalCode: '75000',
+            city: 'Paris',
             country: 'France',
             otherInfo: '',
           },
