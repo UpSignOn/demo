@@ -211,7 +211,7 @@ demoApiRouter.post('/create-account', async (req, res) => {
   }
 });
 
-const exportAccount = async (req: any, res: any) => {
+demoApiRouter.post('/export-account', async (req: any, res: any) => {
   try {
     const password = req.body.currentPassword;
     const login = req.body.currentLogin;
@@ -262,10 +262,7 @@ const exportAccount = async (req: any, res: any) => {
     console.error(e);
     res.status(500).end();
   }
-};
-// TODO remove after app update
-demoApiRouter.post('/convert-account', exportAccount);
-demoApiRouter.post('/export-account', exportAccount);
+});
 
 demoApiRouter.post('/connect', async (req, res) => {
   try {
