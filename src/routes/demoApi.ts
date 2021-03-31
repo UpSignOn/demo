@@ -3,10 +3,9 @@ import { db } from '../helpers/db-connection';
 import { v4 as uuidv4 } from 'uuid';
 import { passwordHash } from '../helpers/passwordHash';
 import env from '../helpers/env';
+import { definitions } from '../helpers/definitions';
 
 export const demoApiRouter = express.Router();
-
-const CONFIG_VERSION = '2';
 
 const isTokenExpired = (created_at: Date) => {
   const expirationTime = 60 * 1000; // 1 minute
@@ -32,82 +31,14 @@ demoApiRouter.get('/config', async (req, res) => {
   try {
     const lang = req.query.lang;
     const isRaoul = env.BASE_URL.indexOf('raoul') !== -1;
+    const isMonptitshop = env.BASE_URL.indexOf('monptitshop') !== -1;
 
     if (isRaoul) {
-      return res.status(200).json({
-        version: CONFIG_VERSION,
-        legalTerms: [],
-        fields: [
-          { type: 'firstname', key: 'firstname', mandatory: true },
-          { type: 'lastname', key: 'lastname', mandatory: true },
-          {
-            type: 'email',
-            key: 'email1',
-            mandatory: true,
-            variant: 'custom',
-            customLabel: 'Email perso',
-          },
-          { type: 'phoneNumber', key: 'phoneNumber', mandatory: true },
-          {
-            type: 'postalAddress',
-            key: 'deliveryAddress',
-            mandatory: true,
-            variant: 'custom',
-            customLabel: 'Delivery address',
-          },
-        ],
-      });
+      return res.status(200).json(definitions.raoul.config);
+    } else if (isMonptitshop) {
+      return res.status(200).json(definitions.monptitshop.config);
     } else {
-      return res.status(200).json({
-        version: CONFIG_VERSION,
-        legalTerms: [
-          {
-            id: '1',
-            date: '2020-01-01',
-            link: 'https://upsignon.eu/terms-of-service/fr/20200209.pdf',
-            translatedText: 'CGU',
-          },
-        ],
-        fields: [
-          { type: 'firstname', key: 'firstname', mandatory: true },
-          { type: 'lastname', key: 'lastname', mandatory: true },
-          { type: 'title', key: 'title', mandatory: false },
-          { type: 'dateOfBirth', key: 'dateOfBirth', mandatory: false },
-          {
-            type: 'email',
-            key: 'email1',
-            mandatory: true,
-            variant: 'custom',
-            customLabel: 'Email perso',
-          },
-          {
-            type: 'email',
-            key: 'email2',
-            mandatory: false,
-            variant: 'custom',
-            customLabel: 'Email pro',
-          },
-          { type: 'phoneNumber', key: 'phoneNumber', mandatory: true },
-          {
-            type: 'postalAddress',
-            key: 'deliveryAddress',
-            mandatory: true,
-            variant: 'custom',
-            customLabel: 'Delivery address',
-            maxSize: 3,
-          },
-          {
-            type: 'postalAddress',
-            key: 'billingAddress',
-            mandatory: false,
-            variant: 'custom',
-            customLabel: 'Billing address',
-            maxSize: 1,
-          },
-          { type: 'iban', key: 'iban', mandatory: false },
-          { type: 'newsletterConsent', key: 'newsletterConsent', mandatory: false },
-        ],
-      });
+      return res.status(200).json(definitions.mapaye.config);
     }
   } catch (e) {
     console.error(e);
@@ -118,60 +49,31 @@ demoApiRouter.get('/config', async (req, res) => {
 demoApiRouter.get('/button-config', async (req, res) => {
   try {
     const buttonId = req.query.buttonId;
-    const monptitShopFields = [
-      { type: 'firstname', key: 'firstname', mandatory: true },
-      { type: 'lastname', key: 'lastname', mandatory: true },
-      { type: 'title', key: 'title', mandatory: false },
-      { type: 'dateOfBirth', key: 'dateOfBirth', mandatory: false },
-      { type: 'email', key: 'email1', mandatory: true },
-      { type: 'email', key: 'email2', mandatory: false },
-      { type: 'phoneNumber', key: 'phoneNumber', mandatory: true },
-      { type: 'postalAddress', key: 'deliveryAddress', mandatory: true },
-      { type: 'postalAddress', key: 'billingAddress', mandatory: false },
-      { type: 'iban', key: 'iban', mandatory: false },
-      { type: 'newsletterConsent', key: 'newsletterConsent', mandatory: false },
-    ];
-    const raoulFields = [
-      { type: 'firstname', key: 'firstname', mandatory: true },
-      { type: 'lastname', key: 'lastname', mandatory: true },
-      { type: 'email', key: 'email1', mandatory: true },
-      { type: 'phoneNumber', key: 'phoneNumber', mandatory: true },
-      { type: 'postalAddress', key: 'deliveryAddress', mandatory: true },
-    ];
+
     let buttonConfig;
     switch (buttonId) {
-      case 'SHOP1': {
-        buttonConfig = {
-          fields: monptitShopFields,
-          forceFormDisplay: false,
-          generalConfigVersion: CONFIG_VERSION,
-        };
+      case definitions.monptitshop.button1.name: {
+        buttonConfig = definitions.monptitshop.button1.config;
         break;
       }
-      case 'SHOP2': {
-        buttonConfig = {
-          fields: monptitShopFields,
-          forceFormDisplay: true,
-          generalConfigVersion: CONFIG_VERSION,
-          disableAccountCreation: true,
-        };
+      case definitions.monptitshop.button2.name: {
+        buttonConfig = definitions.monptitshop.button2.config;
         break;
       }
-      case 'RAOUL1': {
-        buttonConfig = {
-          fields: raoulFields,
-          forceFormDisplay: false,
-          generalConfigVersion: CONFIG_VERSION,
-        };
+      case definitions.raoul.button1.name: {
+        buttonConfig = definitions.raoul.button1.config;
         break;
       }
-      case 'RAOUL2': {
-        buttonConfig = {
-          fields: raoulFields,
-          forceFormDisplay: true,
-          generalConfigVersion: CONFIG_VERSION,
-          disableAccountCreation: true,
-        };
+      case definitions.raoul.button2.name: {
+        buttonConfig = definitions.raoul.button2.config;
+        break;
+      }
+      case definitions.mapaye.button1.name: {
+        buttonConfig = definitions.mapaye.button1.config;
+        break;
+      }
+      case definitions.mapaye.button2.name: {
+        buttonConfig = definitions.mapaye.button2.config;
         break;
       }
       default:

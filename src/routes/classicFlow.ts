@@ -147,6 +147,8 @@ classicFlowRouter.get('/export', async (req: any, res: any) => {
     ]);
     if (env.IS_PRODUCTION) {
       const isRaoul = env.BASE_URL.indexOf('raoul') !== -1;
+      const isMonptitshop = env.BASE_URL.indexOf('monptitshop') !== -1;
+      const isMaPaye = env.BASE_URL.indexOf('mapaye') !== -1;
       if (isRaoul) {
         res.redirect(
           303,
@@ -154,11 +156,18 @@ classicFlowRouter.get('/export', async (req: any, res: any) => {
             'https://raoul.upsignon.eu/demo',
           )}&buttonId=RAOUL2&connectionToken=${req.session.userId}:${token}`,
         );
-      } else {
+      } else if (isMonptitshop) {
         res.redirect(
           303,
           `upsignon://protocol/?url=${encodeURIComponent(
             'https://monptitshop.upsignon.eu/demo',
+          )}&buttonId=SHOP2&connectionToken=${req.session.userId}:${token}`,
+        );
+      } else if (isMaPaye) {
+        res.redirect(
+          303,
+          `upsignon://protocol/?url=${encodeURIComponent(
+            'https://mapaye.upsignon.eu/demo',
           )}&buttonId=SHOP2&connectionToken=${req.session.userId}:${token}`,
         );
       }
