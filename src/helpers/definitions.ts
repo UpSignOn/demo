@@ -20,7 +20,7 @@ const raoulFields = [
   { type: 'phoneNumber', key: 'phoneNumber', mandatory: true },
   { type: 'postalAddress', key: 'deliveryAddress', mandatory: true },
 ];
-const maPayeFields = [{ type: 'email', key: 'email', mandatory: true }];
+const maPayeFields = [{ type: 'email', key: 'email1', mandatory: true }];
 
 export const buttonConfigs = {
   RAOUL1: {
@@ -139,7 +139,7 @@ export const configs = {
     fields: [
       {
         type: 'email',
-        key: 'email',
+        key: 'email1',
         mandatory: true,
         variant: 'custom',
         customLabel: 'Email pro',

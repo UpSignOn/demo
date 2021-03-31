@@ -168,7 +168,7 @@ classicFlowRouter.get('/export', async (req: any, res: any) => {
           303,
           `upsignon://protocol/?url=${encodeURIComponent(
             'https://mapaye.upsignon.eu/demo',
-          )}&buttonId=SHOP2&connectionToken=${req.session.userId}:${token}`,
+          )}&buttonId=MAPAYE2&connectionToken=${req.session.userId}:${token}`,
         );
       }
     } else {
