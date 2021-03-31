@@ -3,7 +3,7 @@ import { db } from '../helpers/db-connection';
 import { v4 as uuidv4 } from 'uuid';
 import { passwordHash } from '../helpers/passwordHash';
 import env from '../helpers/env';
-import { definitions } from '../helpers/definitions';
+import { buttonConfigs, configs } from '../helpers/definitions';
 
 export const demoApiRouter = express.Router();
 
@@ -34,11 +34,11 @@ demoApiRouter.get('/config', async (req, res) => {
     const isMonptitshop = env.BASE_URL.indexOf('monptitshop') !== -1;
 
     if (isRaoul) {
-      return res.status(200).json(definitions.raoul.config);
+      return res.status(200).json(configs.raoul);
     } else if (isMonptitshop) {
-      return res.status(200).json(definitions.monptitshop.config);
+      return res.status(200).json(configs.monptitshop);
     } else {
-      return res.status(200).json(definitions.mapaye.config);
+      return res.status(200).json(configs.mapaye);
     }
   } catch (e) {
     console.error(e);
@@ -49,35 +49,10 @@ demoApiRouter.get('/config', async (req, res) => {
 demoApiRouter.get('/button-config', async (req, res) => {
   try {
     const buttonId = req.query.buttonId;
-
-    let buttonConfig;
-    switch (buttonId) {
-      case definitions.monptitshop.button1.name: {
-        buttonConfig = definitions.monptitshop.button1.config;
-        break;
-      }
-      case definitions.monptitshop.button2.name: {
-        buttonConfig = definitions.monptitshop.button2.config;
-        break;
-      }
-      case definitions.raoul.button1.name: {
-        buttonConfig = definitions.raoul.button1.config;
-        break;
-      }
-      case definitions.raoul.button2.name: {
-        buttonConfig = definitions.raoul.button2.config;
-        break;
-      }
-      case definitions.mapaye.button1.name: {
-        buttonConfig = definitions.mapaye.button1.config;
-        break;
-      }
-      case definitions.mapaye.button2.name: {
-        buttonConfig = definitions.mapaye.button2.config;
-        break;
-      }
-      default:
-        return res.status(404).end();
+    // @ts-ignore
+    const buttonConfig = buttonConfigs[buttonId];
+    if (!buttonConfig) {
+      return res.status(404).end();
     }
     return res.status(200).json(buttonConfig);
   } catch (e) {
